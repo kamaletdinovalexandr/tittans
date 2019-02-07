@@ -1,0 +1,7 @@
+Library/
+Temp/
+*.csproj
+*.sln
+ProjectSettings/
+.vs/
+UnityPackageManager/manifest.json
