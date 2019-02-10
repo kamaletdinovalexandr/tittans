@@ -4,10 +4,10 @@ using UnityEngine;
 
 public class Unit : MonoBehaviour {
 
-	public float Speed { get; set; }
-	public Team UnitTeam { get; set; }
-	public Power UnitPower { get; set; }
-	public Vector2 TargetPosition { get; set; }
+	public float Speed;
+	public Team UnitTeam;
+	public Power UnitPower;
+	public Vector2 TargetPosition;
 
 	void Update () {
 		if (TargetPosition != null)
@@ -22,15 +22,15 @@ public class Unit : MonoBehaviour {
 		if (unit == null)
 			return;
 		if (unit.UnitTeam != UnitTeam && IsPowerfull(unit.UnitPower)) {
-			Debug.Log("Object with power " + UnitPower + " destroyed by " + unit.UnitPower);
-			Destroy(gameObject);
+			Debug.Log("Unit with power " + UnitPower + " is destroyed unit with power " + unit.UnitPower);
+			Destroy(unit.gameObject);
 		}
 	}
 
 	private bool IsPowerfull(Power power) {
-		if (UnitPower == Power.paper && power == Power.scissors
-		    || UnitPower == Power.rock && power == Power.paper
-		    || UnitPower == Power.scissors && power == Power.rock)
+		if (UnitPower == Power.scissors && power == Power.paper
+		    || UnitPower == Power.paper && power == Power.rock
+		    || UnitPower == Power.rock && power == Power.scissors)
 			return true;
 		
 		return false;

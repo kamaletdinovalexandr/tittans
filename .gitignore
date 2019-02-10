@@ -5,3 +5,9 @@ Temp/
 ProjectSettings/
 .vs/
 UnityPackageManager/manifest.json
+.idea
+*.user
+Plugins.meta
+Assets/Plugins
+*.cache
+manifest.json
