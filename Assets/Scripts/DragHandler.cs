@@ -7,20 +7,33 @@ using UnityEngine.EventSystems;
 public class DragHandler : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHandler {
 
 	[SerializeField] private Power _power;
-	private Transform draggingObject = null;
+	private GameObject draggingObject = null;
+	private Image draggingImage = null;
+	private Color originalColor;
 
 	public void OnBeginDrag(PointerEventData eventData) {
-		draggingObject = GameController.Instance.PlayerSpawn(_power, GetWorldMousePosition());
-//		Debug.Break();
+		draggingObject = Instantiate(gameObject, transform.parent, true);
+		draggingImage = draggingObject.GetComponent<Image>();
+		originalColor = draggingImage.color;
 	}
 
 	public void OnDrag(PointerEventData eventData) {
-		 if (draggingObject != null)
-			draggingObject.position = GetWorldMousePosition();
+		 if (draggingObject == null)
+			 return;
+		 
+		 draggingObject.transform.position = Input.mousePosition;
+		 bool isSpawn = GameController.Instance.IsBlueSpawnAvailable(_power, GetWorldMousePosition());
+		 draggingImage.color = isSpawn ? originalColor : Color.red;	 
 	}
 
 	public void OnEndDrag(PointerEventData eventData) {
-		draggingObject = null;	
+		if (GameController.Instance.IsBlueSpawnAvailable(_power, GetWorldMousePosition())) {
+			GameController.Instance.PlayerSpawn(_power, GetWorldMousePosition());
+		}
+		
+		Destroy(draggingObject);
+		draggingObject = null;
+		draggingImage = null;
 	}
 
 	private Vector2 GetWorldMousePosition() {

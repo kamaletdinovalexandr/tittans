@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using Random = UnityEngine.Random;
@@ -31,6 +32,12 @@ public class GameController : MonoBehaviour {
 	[SerializeField] private Text _blueTeamEnergyText;
 	[SerializeField] private Text _redBaseLives;
 	[SerializeField] private Text _blueBaseLives;
+	[SerializeField] private Text _gameOver;
+	private Dictionary<Power, int> Costs = new Dictionary<Power, int>() {
+		{ Power.rock , 3 },
+		{ Power.paper, 4 },
+		{ Power.scissors, 6 }
+	};
 	
 	private int maxEnergy = 10;
 	private Power _currentRedUnit;
@@ -39,6 +46,9 @@ public class GameController : MonoBehaviour {
 	private Vector2 _blueHalfScale;
 	private float _blueEnergy;
 	private float _redEnergy;
+
+	private float _npcDelay;
+	private bool _gameRunning;
 	
 	void Awake () {
 		_instance = this;
@@ -46,36 +56,58 @@ public class GameController : MonoBehaviour {
 		_blueHalfScale = _blueArea.localScale / 2f;
 		_blueEnergy = maxEnergy;
 		_redEnergy = maxEnergy;
+		_gameOver.text = String.Empty;
+		_gameRunning = true;
 	}
 
 	void FixedUpdate () {
+		if (!_gameRunning)
+			return;
+		
 		_redEnergy = UpdateEnergy(_redEnergy);
 		_blueEnergy = UpdateEnergy(_blueEnergy);
 		
 		NpcSpawn();
 
 		UpdateUI();
+
+		if (_redBase.BaseLives <= 0) {
+			GameOver(_blueBase.CurrentTeam);
+		}
+		else {
+			if (_blueBase.BaseLives <= 0)
+				GameOver(_redBase.CurrentTeam);
+		}
+	}
+
+	private void GameOver(Team team) {
+		_gameOver.text = team.ToString() + " wins!";
+		_gameRunning = false;
 	}
 
 	private void NpcSpawn() {
+		if (_npcDelay > 0f) {
+			_npcDelay -= Time.deltaTime;
+			return;
+		}
+			
+		_npcDelay = Random.Range(2, 4);
+
 		if (_currentRedUnit == Power.none)
 			_currentRedUnit = GetRandowPower();
 				
-		    if (isSpawnAvailable(_currentRedUnit, _redEnergy)) {
-				_redEnergy -= (int) _currentRedUnit;
+		    if (IsEnergyAvailable(_currentRedUnit, _redEnergy)) {
+				_redEnergy -= Costs[_currentRedUnit];
 				var position = GetRandomPosition(_redArea.position, _redHalfScale);
 				SpawnUnit(_currentRedUnit, Team.red, position, _blueBase.transform.position);
 				_currentRedUnit = Power.none;
 		}
 	}
 	
-	public Transform PlayerSpawn(Power power, Vector2 position) {
-		if (!isSpawnAvailable(power, _blueEnergy))
-			return null;
+	public void PlayerSpawn(Power power, Vector2 position) {
+		SpawnUnit(power, Team.blue, position, _redBase.transform.position);
+		_blueEnergy -= Costs[power];
 		
-		var unitTransform = SpawnUnit(power, Team.blue, position, _redBase.transform.position);
-		_blueEnergy -= (int) power;
-		return unitTransform;
 	}
 
 	private float UpdateEnergy(float energy) {
@@ -83,12 +115,22 @@ public class GameController : MonoBehaviour {
 		return newEnergy > maxEnergy ? maxEnergy : newEnergy;
 	}
 
-	private bool isSpawnAvailable(Power power, float energy) {
-		var intEnergy = (int) power;
-		if (energy - intEnergy >= 0)
+	private bool IsEnergyAvailable(Power power, float energy) {
+		if (Costs.ContainsKey(power) && energy - Costs[power] >= 0)
 			return true;
 		
 		return false;
+	}
+
+	private bool IsInsideArea(Vector2 areaPosition, Vector2 halfScale, Vector2 position) {
+		return position.x >= areaPosition.x - halfScale.x 
+		       && position.x <= areaPosition.x + halfScale.x
+		       && position.y >= areaPosition.y - halfScale.y 
+		       && position.y <= areaPosition.y + halfScale.y;
+	}
+
+	public bool IsBlueSpawnAvailable(Power power, Vector3 position) {
+		return IsEnergyAvailable(power, _blueEnergy) && IsInsideArea(_blueArea.position, _blueHalfScale, position);
 	}
 
 	private Transform SpawnUnit(Power power, Team team, Vector2 spawnPosition, Vector2 targetPosition) {
