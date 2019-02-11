@@ -70,11 +70,13 @@ public class GameController : MonoBehaviour {
 		}
 	}
 	
-	public void PlayerSpawn(Power power, Vector2 position) {
+	public Transform PlayerSpawn(Power power, Vector2 position) {
 		if (!isSpawnAvailable(power, _blueEnergy))
-			return;
+			return null;
 		
-		SpawnUnit(power, Team.blue, position, _redBase.transform.position);
+		var unitTransform = SpawnUnit(power, Team.blue, position, _redBase.transform.position);
+		_blueEnergy -= (int) power;
+		return unitTransform;
 	}
 
 	private float UpdateEnergy(float energy) {
@@ -90,7 +92,7 @@ public class GameController : MonoBehaviour {
 		return false;
 	}
 
-	private void SpawnUnit(Power power, Team team, Vector2 spawnPosition, Vector2 targetPosition) {
+	private Transform SpawnUnit(Power power, Team team, Vector2 spawnPosition, Vector2 targetPosition) {
 		Unit prefab = _rockPrefab;
 		switch (power) {
 			case Power.scissors:
@@ -105,6 +107,7 @@ public class GameController : MonoBehaviour {
 		
 		unit.UnitTeam = team;
 		unit.TargetPosition = targetPosition;
+		return unit.gameObject.transform;
 	}
 
 	private void UpdateUI() {
@@ -123,6 +126,4 @@ public class GameController : MonoBehaviour {
 		var randomY = Random.Range(areaPosition.y - halfScale.y, areaPosition.y + halfScale.y);
 		return new Vector2(randomX, randomY);
 	}
-
-	
 }

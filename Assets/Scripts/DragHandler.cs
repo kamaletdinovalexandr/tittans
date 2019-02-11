@@ -7,21 +7,20 @@ using UnityEngine.EventSystems;
 public class DragHandler : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHandler {
 
 	[SerializeField] private Power _power;
-	private GameObject draggingObject = null;
+	private Transform draggingObject = null;
 
 	public void OnBeginDrag(PointerEventData eventData) {
-		draggingObject = Instantiate(this.gameObject, transform.position, Quaternion.identity);
+		draggingObject = GameController.Instance.PlayerSpawn(_power, GetWorldMousePosition());
+//		Debug.Break();
 	}
 
 	public void OnDrag(PointerEventData eventData) {
-		 
-		draggingObject.transform.position = GetWorldMousePosition();
+		 if (draggingObject != null)
+			draggingObject.position = GetWorldMousePosition();
 	}
 
 	public void OnEndDrag(PointerEventData eventData) {
-		Destroy(draggingObject);
-		draggingObject = null;
-		GameController.Instance.PlayerSpawn(_power, GetWorldMousePosition());
+		draggingObject = null;	
 	}
 
 	private Vector2 GetWorldMousePosition() {

@@ -18,21 +18,19 @@ public class Unit : MonoBehaviour {
 	}
 
 	private void OnTriggerEnter2D(Collider2D collision) {
-		var unit = collision.gameObject.GetComponent<Unit>();
-		if (unit == null)
+		var otherUnit = collision.gameObject.GetComponent<Unit>();
+		if (otherUnit == null)
 			return;
-		if (unit.UnitTeam != UnitTeam && CanDestroy(unit.UnitPower)) {
-			Debug.Log("Unit with power " + UnitPower + " is destroyed unit with power " + unit.UnitPower);
-			Destroy(unit.gameObject);
+		
+		if (otherUnit.UnitTeam != UnitTeam && !IsPowerfull(otherUnit.UnitPower)) {
+			Debug.Log("Unit with power " + UnitPower + " is destroyed by " + otherUnit.UnitPower);
+			Destroy(gameObject);
 		}
 	}
 
-	private bool CanDestroy(Power power) {
-		if (UnitPower == Power.scissors && power == Power.paper
-		    || UnitPower == Power.paper && power == Power.rock
-		    || UnitPower == Power.rock && power == Power.scissors)
-			return true;
-		
-		return false;
+	private bool IsPowerfull(Power otherPower) {
+		return UnitPower == Power.scissors && otherPower == Power.rock
+		       || UnitPower == Power.paper && otherPower == Power.scissors
+		       || UnitPower == Power.rock && otherPower == Power.paper;
 	}
 }

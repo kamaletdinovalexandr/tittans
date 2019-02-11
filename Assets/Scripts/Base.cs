@@ -9,7 +9,7 @@ public class Base : MonoBehaviour {
 
 	private void OnTriggerEnter2D(Collider2D other) {
 		var otherUnit = other.GetComponent<Unit>();
-		if (CurrentTeam != null && otherUnit != null && otherUnit.UnitTeam != CurrentTeam)
+		if (otherUnit != null && otherUnit.UnitTeam != CurrentTeam)
 			BaseLives -= 1;
 		Destroy(otherUnit.gameObject);
 	}
