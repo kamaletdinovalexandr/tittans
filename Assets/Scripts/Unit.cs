@@ -21,13 +21,13 @@ public class Unit : MonoBehaviour {
 		var unit = collision.gameObject.GetComponent<Unit>();
 		if (unit == null)
 			return;
-		if (unit.UnitTeam != UnitTeam && IsPowerfull(unit.UnitPower)) {
+		if (unit.UnitTeam != UnitTeam && CanDestroy(unit.UnitPower)) {
 			Debug.Log("Unit with power " + UnitPower + " is destroyed unit with power " + unit.UnitPower);
 			Destroy(unit.gameObject);
 		}
 	}
 
-	private bool IsPowerfull(Power power) {
+	private bool CanDestroy(Power power) {
 		if (UnitPower == Power.scissors && power == Power.paper
 		    || UnitPower == Power.paper && power == Power.rock
 		    || UnitPower == Power.rock && power == Power.scissors)
