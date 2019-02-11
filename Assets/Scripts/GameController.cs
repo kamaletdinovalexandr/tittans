@@ -60,13 +60,12 @@ public class GameController : MonoBehaviour {
 	private void NpcSpawn() {
 		if (_currentRedUnit == Power.none)
 			_currentRedUnit = GetRandowPower();
-
-		if (_currentRedUnit != Power.none && isSpawnAvailable(_currentRedUnit, _redEnergy)) {
-			_redEnergy -= (int) _currentRedUnit;
-			var power = GetRandowPower();
-			var position = GetRandomPosition(_redArea.position, _redHalfScale);
-			SpawnUnit(_currentRedUnit, Team.red, position, _blueBase.transform.position);
-			_currentRedUnit = Power.none;
+				
+		    if (isSpawnAvailable(_currentRedUnit, _redEnergy)) {
+				_redEnergy -= (int) _currentRedUnit;
+				var position = GetRandomPosition(_redArea.position, _redHalfScale);
+				SpawnUnit(_currentRedUnit, Team.red, position, _blueBase.transform.position);
+				_currentRedUnit = Power.none;
 		}
 	}
 	
@@ -104,9 +103,10 @@ public class GameController : MonoBehaviour {
 		}
 		
 		var unit = Instantiate(prefab, spawnPosition, Quaternion.identity);
-		
+		unit.UnitPower = power;
 		unit.UnitTeam = team;
 		unit.TargetPosition = targetPosition;
+		
 		return unit.gameObject.transform;
 	}
 

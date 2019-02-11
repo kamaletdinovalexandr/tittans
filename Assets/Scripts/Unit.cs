@@ -22,15 +22,15 @@ public class Unit : MonoBehaviour {
 		if (otherUnit == null)
 			return;
 		
-		if (otherUnit.UnitTeam != UnitTeam && !IsPowerfull(otherUnit.UnitPower)) {
-			Debug.Log("Unit with power " + UnitPower + " is destroyed by " + otherUnit.UnitPower);
-			Destroy(gameObject);
+		if (otherUnit.UnitTeam != UnitTeam && IsPowerfullThen(otherUnit.UnitPower)) {
+			Debug.Log("Unit with power " + UnitPower + " is destroyed unit " + otherUnit.UnitPower);
+			Destroy(otherUnit.gameObject);
 		}
 	}
 
-	private bool IsPowerfull(Power otherPower) {
-		return UnitPower == Power.scissors && otherPower == Power.rock
-		       || UnitPower == Power.paper && otherPower == Power.scissors
-		       || UnitPower == Power.rock && otherPower == Power.paper;
+	private bool IsPowerfullThen(Power otherPower) {
+		return UnitPower == Power.rock && otherPower == Power.scissors
+		       || UnitPower == Power.scissors && otherPower == Power.paper
+		       || UnitPower == Power.paper && otherPower == Power.rock;
 	}
 }
