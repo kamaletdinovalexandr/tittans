@@ -4,12 +4,12 @@ using UnityEngine;
 
 public class Base : MonoBehaviour {
 
-	public Team CurrentTeam;
+	public TeamColor CurrentTeam;
 	public int BaseLives;
 
 	private void OnTriggerEnter2D(Collider2D other) {
 		var otherUnit = other.GetComponent<Unit>();
-		if (otherUnit == null || otherUnit.UnitTeam == CurrentTeam)
+		if (otherUnit == null || otherUnit.Team == CurrentTeam)
 			return;
 		
 		BaseLives -= 1;

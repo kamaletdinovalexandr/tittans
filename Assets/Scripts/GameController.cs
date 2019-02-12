@@ -5,19 +5,17 @@ using UnityEngine;
 using Random = UnityEngine.Random;
 using UnityEngine.UI;
 
-public enum Team { red, blue }
-public enum Power { none, paper, scissors, rock }
+public enum TeamColor { red, blue }
+public enum Power { none, paper, scissors, rock, titan }
 
 public class GameController : MonoBehaviour {
-
-	private const string LIVES = "Lives: ";
-	private const string ENERGY = "Energy: ";
-	
 	private static GameController _instance;
 
 	public static GameController Instance {
 		get { return _instance; }
 	}
+
+	#region EditorSetups
 
 	[SerializeField] private Base _redBase;
 	[SerializeField] private Base _blueBase;
@@ -27,35 +25,34 @@ public class GameController : MonoBehaviour {
 	[SerializeField] private Unit _rockPrefab;
 	[SerializeField] private Unit _scissorsPrefab;
 	[SerializeField] private Unit _paperPrefab;
+	[SerializeField] private Unit _titanPrefab;
 	
 	[SerializeField] private Text _redTeamEnergyText;
 	[SerializeField] private Text _blueTeamEnergyText;
 	[SerializeField] private Text _redBaseLives;
 	[SerializeField] private Text _blueBaseLives;
 	[SerializeField] private Text _gameOver;
-	private Dictionary<Power, int> Costs = new Dictionary<Power, int>() {
+	
+	#endregion
+	
+	public Dictionary<Power, int> Costs = new Dictionary<Power, int>() {
 		{ Power.rock , 3 },
 		{ Power.paper, 4 },
-		{ Power.scissors, 6 }
-	};
+		{ Power.scissors, 6 },
+		{ Power.titan, 8 }
+	};	
 	
-	private int maxEnergy = 10;
-	private Power _currentRedUnit;
-	
-	private Vector2 _redHalfScale;
-	private Vector2 _blueHalfScale;
-	private float _blueEnergy;
-	private float _redEnergy;
-
-	private float _npcDelay;
 	private bool _gameRunning;
+	private Team _redTeam;
+	private Team _blueTeam;
 	
 	void Awake () {
 		_instance = this;
-		_redHalfScale = _redArea.localScale / 2f;
-		_blueHalfScale = _blueArea.localScale / 2f;
-		_blueEnergy = maxEnergy;
-		_redEnergy = maxEnergy;
+		_redTeam = new Team(_blueBase.transform.position, _redArea.position, _redArea.localScale / 2f);
+		var npcAction = new NpcUpdate(_redTeam);
+		_redTeam.ActionBehaviour = npcAction;
+		
+		_blueTeam = new Team(_redBase.transform.position, _blueArea.position, _blueArea.localScale / 2f);
 		_gameOver.text = String.Empty;
 		_gameRunning = true;
 	}
@@ -64,10 +61,10 @@ public class GameController : MonoBehaviour {
 		if (!_gameRunning)
 			return;
 		
-		_redEnergy = UpdateEnergy(_redEnergy);
-		_blueEnergy = UpdateEnergy(_blueEnergy);
+		_redTeam.UpdateEnergy();
+		_redTeam.ActionBehaviour.MakeAction();
+		_blueTeam.UpdateEnergy();
 		
-		NpcSpawn();
 
 		UpdateUI();
 
@@ -80,60 +77,32 @@ public class GameController : MonoBehaviour {
 		}
 	}
 
-	private void GameOver(Team team) {
-		_gameOver.text = team.ToString() + " wins!";
+	private void GameOver(TeamColor team) {
+		_gameOver.text = team + Globals.WINS;
 		_gameRunning = false;
 	}
 
-	private void NpcSpawn() {
-		if (_npcDelay > 0f) {
-			_npcDelay -= Time.deltaTime;
-			return;
-		}
-			
-		_npcDelay = Random.Range(2, 4);
-
-		if (_currentRedUnit == Power.none)
-			_currentRedUnit = GetRandowPower();
-				
-		    if (IsEnergyAvailable(_currentRedUnit, _redEnergy)) {
-				_redEnergy -= Costs[_currentRedUnit];
-				var position = GetRandomPosition(_redArea.position, _redHalfScale);
-				SpawnUnit(_currentRedUnit, Team.red, position, _blueBase.transform.position);
-				_currentRedUnit = Power.none;
-		}
-	}
+	
 	
 	public void PlayerSpawn(Power power, Vector2 position) {
-		SpawnUnit(power, Team.blue, position, _redBase.transform.position);
-		_blueEnergy -= Costs[power];
+		SpawnUnit(power, TeamColor.blue, position, _redBase.transform.position);
+		_blueTeam.Energy -= Costs[power];
 		
 	}
 
-	private float UpdateEnergy(float energy) {
-		float newEnergy = energy + Time.deltaTime;
-		return newEnergy > maxEnergy ? maxEnergy : newEnergy;
+
+
+	public bool IsEnergyAvailable(Power power, float energy) {
+		return Costs.ContainsKey(power) && energy - Costs[power] >= 0;
 	}
 
-	private bool IsEnergyAvailable(Power power, float energy) {
-		if (Costs.ContainsKey(power) && energy - Costs[power] >= 0)
-			return true;
-		
-		return false;
-	}
-
-	private bool IsInsideArea(Vector2 areaPosition, Vector2 halfScale, Vector2 position) {
-		return position.x >= areaPosition.x - halfScale.x 
-		       && position.x <= areaPosition.x + halfScale.x
-		       && position.y >= areaPosition.y - halfScale.y 
-		       && position.y <= areaPosition.y + halfScale.y;
-	}
+	
 
 	public bool IsBlueSpawnAvailable(Power power, Vector3 position) {
-		return IsEnergyAvailable(power, _blueEnergy) && IsInsideArea(_blueArea.position, _blueHalfScale, position);
+		return IsEnergyAvailable(power, _blueTeam.Energy) && _blueTeam.IsInsideArea(position);
 	}
 
-	private Transform SpawnUnit(Power power, Team team, Vector2 spawnPosition, Vector2 targetPosition) {
+	public void SpawnUnit(Power power, TeamColor teamColor, Vector2 spawnPosition, Vector2 targetPosition) {
 		Unit prefab = _rockPrefab;
 		switch (power) {
 			case Power.scissors:
@@ -142,30 +111,23 @@ public class GameController : MonoBehaviour {
 			case Power.paper:
 				prefab = _paperPrefab;
 				break;
+			case Power.titan:
+				prefab = _titanPrefab;
+				break;
 		}
 		
 		var unit = Instantiate(prefab, spawnPosition, Quaternion.identity);
 		unit.UnitPower = power;
-		unit.UnitTeam = team;
+		unit.Team = teamColor;
 		unit.TargetPosition = targetPosition;
-		
-		return unit.gameObject.transform;
 	}
 
 	private void UpdateUI() {
-		_redBaseLives.text = LIVES + _redBase.BaseLives;
-		_blueBaseLives.text = LIVES + _blueBase.BaseLives;
-		_redTeamEnergyText.text = ENERGY + Mathf.RoundToInt(_redEnergy);
-		_blueTeamEnergyText.text = ENERGY + Mathf.RoundToInt(_blueEnergy);
+		_redBaseLives.text = Globals.LIVES + _redBase.BaseLives;
+		_blueBaseLives.text = Globals.LIVES + _blueBase.BaseLives;
+		_redTeamEnergyText.text = Globals.ENERGY + Mathf.RoundToInt(_redTeam.Energy);
+		_blueTeamEnergyText.text = Globals.ENERGY + Mathf.RoundToInt(_blueTeam.Energy);
 	}
 	
-	private Power GetRandowPower() {
-		return (Power)Random.Range(1, System.Enum.GetValues(typeof(Power)).Length);
-	}
-
-	private Vector2 GetRandomPosition(Vector2 areaPosition, Vector2 halfScale) {
-		var randomX = Random.Range(areaPosition.x - halfScale.x, areaPosition.x + halfScale.x);
-		var randomY = Random.Range(areaPosition.y - halfScale.y, areaPosition.y + halfScale.y);
-		return new Vector2(randomX, randomY);
-	}
+	
 }
