@@ -13,7 +13,15 @@ Prefab:
       objectReference: {fileID: 0}
     - target: {fileID: 0}
       propertyPath: Speed
-      value: 0.3
+      value: 0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 0}
+      propertyPath: m_Radius
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 0}
+      propertyPath: m_IsTrigger
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 0}
@@ -31,6 +39,7 @@ GameObject:
   - component: {fileID: 58888486042648780}
   - component: {fileID: 50669567744885766}
   - component: {fileID: 114161613093201560}
+  - component: {fileID: 58984218767574198}
   m_Layer: 0
   m_Name: Unit_Rock
   m_TagString: Untagged
@@ -80,12 +89,27 @@ CircleCollider2D:
   m_Enabled: 1
   m_Density: 1
   m_Material: {fileID: 0}
-  m_IsTrigger: 1
+  m_IsTrigger: 0
   m_UsedByEffector: 0
   m_UsedByComposite: 0
   m_Offset: {x: 0, y: 0}
   serializedVersion: 2
   m_Radius: 0.5
+--- !u!58 &58984218767574198
+CircleCollider2D:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1163659773080442}
+  m_Enabled: 1
+  m_Density: 1
+  m_Material: {fileID: 0}
+  m_IsTrigger: 1
+  m_UsedByEffector: 0
+  m_UsedByComposite: 0
+  m_Offset: {x: 0, y: 0}
+  serializedVersion: 2
+  m_Radius: 2
 --- !u!114 &114161613093201560
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -97,8 +121,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 34c1373596a324c13986bbfd32e4a596, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Speed: 0.3
-  UnitTeam: 1
+  Speed: 0.5
+  Team: 0
   UnitPower: 3
   TargetPosition: {x: 0, y: 0}
 --- !u!212 &212248494907984570
