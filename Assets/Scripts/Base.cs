@@ -7,8 +7,8 @@ public class Base : MonoBehaviour {
 	public TeamColor CurrentTeam;
 	public int BaseLives;
 
-	private void OnTriggerEnter2D(Collider2D other) {
-		var otherUnit = other.GetComponent<Unit>();
+	private void OnCollisionEnter2D(Collision2D other) {
+		var otherUnit = other.gameObject.GetComponent<Unit>();
 		if (otherUnit == null || otherUnit.Team == CurrentTeam)
 			return;
 		

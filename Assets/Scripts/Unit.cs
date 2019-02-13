@@ -8,15 +8,15 @@ public class Unit : MonoBehaviour {
 	public TeamColor Team;
 	public Power UnitPower;
 	public Vector2 TargetPosition;
-	private Vector2 _nearEnemyPosition;
+	private Transform _nearEnemyTransform;
+	private bool _runAway;
 
 	void Update () {
-		if (_nearEnemyPosition != Vector2.zero) {
-			MoveTo(_nearEnemyPosition);
+		if (!_runAway)
+			MoveTo(_nearEnemyTransform != null ? (Vector2)_nearEnemyTransform.position : TargetPosition);
+		else {
+			MoveTo(TargetPosition * -1);
 		}
-			
-		
-		MoveTo(TargetPosition);
 	}
 
 	private void MoveTo(Vector2 position) {
@@ -42,13 +42,21 @@ public class Unit : MonoBehaviour {
 		if (Team == unit.Team)
 			return;
 
-		if (IsPowerfullThen(unit.UnitPower))
-			_nearEnemyPosition = unit.transform.position;
+		if (UnitPower == Power.rock && unit.UnitPower == Power.scissors) {
+			_nearEnemyTransform = unit.transform;
+			return;
+		}
 
+		if (UnitPower != Power.paper || unit.UnitPower != Power.rock) 
+			return;
+		
+		_nearEnemyTransform = unit.transform;
+		_runAway = true;
 	}
 
 	private void OnTriggerExit2D(Collider2D other) {
-		_nearEnemyPosition = Vector2.zero;
+		_nearEnemyTransform = null;
+		_runAway = false;
 	}
 
 	private bool IsPowerfullThen(Power otherPower) {

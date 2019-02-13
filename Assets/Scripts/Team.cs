@@ -7,7 +7,7 @@ public class Team {
     public IUpdate ActionBehaviour { get; set; }
 
     public Team(Vector2 enemyBasePosition, Vector2 areaPosition, Vector2 halfScale) {
-        EnemyBasePosition = EnemyBasePosition;
+        EnemyBasePosition = enemyBasePosition;
         AreaPosition = areaPosition;
         HalfScale = halfScale;
         Energy = Globals.MAX_ENERGY;

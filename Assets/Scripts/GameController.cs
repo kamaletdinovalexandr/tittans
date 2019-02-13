@@ -32,6 +32,15 @@ public class GameController : MonoBehaviour {
 	[SerializeField] private Text _redBaseLives;
 	[SerializeField] private Text _blueBaseLives;
 	[SerializeField] private Text _gameOver;
+
+	[SerializeField] private Text _titanCost;
+	[SerializeField] private Image _titanBuyImage;
+	[SerializeField] private Text _rockCost;
+	[SerializeField] private Image _rockBuyImage;
+	[SerializeField] private Text _scissorsCost;
+	[SerializeField] private Image _scissorsBuyImage;
+	[SerializeField] private Text _paperCost;
+	[SerializeField] private Image _paperBuyImage;
 	
 	#endregion
 	
@@ -48,13 +57,21 @@ public class GameController : MonoBehaviour {
 	
 	void Awake () {
 		_instance = this;
+		Init();
+		_gameRunning = true;
+	}
+
+	private void Init() {
 		_redTeam = new Team(_blueBase.transform.position, _redArea.position, _redArea.localScale / 2f);
 		var npcAction = new NpcUpdate(_redTeam);
 		_redTeam.ActionBehaviour = npcAction;
-		
+
 		_blueTeam = new Team(_redBase.transform.position, _blueArea.position, _blueArea.localScale / 2f);
+		_titanCost.text = Costs[Power.titan].ToString();
+		_rockCost.text = Costs[Power.rock].ToString();
+		_scissorsCost.text = Costs[Power.scissors].ToString();
+		_paperCost.text = Costs[Power.paper].ToString();
 		_gameOver.text = String.Empty;
-		_gameRunning = true;
 	}
 
 	void FixedUpdate () {
@@ -65,7 +82,6 @@ public class GameController : MonoBehaviour {
 		_redTeam.ActionBehaviour.MakeAction();
 		_blueTeam.UpdateEnergy();
 		
-
 		UpdateUI();
 
 		if (_redBase.BaseLives <= 0) {
@@ -82,21 +98,15 @@ public class GameController : MonoBehaviour {
 		_gameRunning = false;
 	}
 
-	
-	
 	public void PlayerSpawn(Power power, Vector2 position) {
 		SpawnUnit(power, TeamColor.blue, position, _redBase.transform.position);
 		_blueTeam.Energy -= Costs[power];
 		
 	}
-
-
-
+	
 	public bool IsEnergyAvailable(Power power, float energy) {
 		return Costs.ContainsKey(power) && energy - Costs[power] >= 0;
 	}
-
-	
 
 	public bool IsBlueSpawnAvailable(Power power, Vector3 position) {
 		return IsEnergyAvailable(power, _blueTeam.Energy) && _blueTeam.IsInsideArea(position);
@@ -127,7 +137,36 @@ public class GameController : MonoBehaviour {
 		_blueBaseLives.text = Globals.LIVES + _blueBase.BaseLives;
 		_redTeamEnergyText.text = Globals.ENERGY + Mathf.RoundToInt(_redTeam.Energy);
 		_blueTeamEnergyText.text = Globals.ENERGY + Mathf.RoundToInt(_blueTeam.Energy);
+
+		UpdateStoreButtons();
 	}
-	
-	
+
+	private void UpdateStoreButtons() {
+		bool canBuy;
+		canBuy = IsEnergyAvailable(Power.titan, _blueTeam.Energy);
+		_titanBuyImage.color = canBuy
+			? SetAlpha(_titanBuyImage.color, 1f)
+			: SetAlpha(_titanBuyImage.color, 0.2f);
+
+		canBuy = IsEnergyAvailable(Power.paper, _blueTeam.Energy);
+		_paperBuyImage.color = canBuy
+			? SetAlpha(_paperBuyImage.color, 1f)
+			: SetAlpha(_paperBuyImage.color, 0.2f);
+
+		canBuy = IsEnergyAvailable(Power.scissors, _blueTeam.Energy);
+		_scissorsBuyImage.color = canBuy
+			? SetAlpha(_scissorsBuyImage.color, 1f)
+			: SetAlpha(_scissorsBuyImage.color, 0.2f);
+
+		canBuy = IsEnergyAvailable(Power.rock, _blueTeam.Energy);
+		_rockBuyImage.color = canBuy
+			? SetAlpha(_rockBuyImage.color, 1f)
+			: SetAlpha(_rockBuyImage.color, 0.2f);
+	}
+
+	private Color SetAlpha(Color color, float alpha) {
+		Color newColor = color;
+		newColor.a = alpha;
+		return newColor;
+	}
 }

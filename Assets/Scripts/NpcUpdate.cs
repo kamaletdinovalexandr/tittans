@@ -1,7 +1,7 @@
 using UnityEngine;
 
 public class NpcUpdate : IUpdate {
-    private float _npcDelay = 7f;
+    private float _npcDelay = 5f;
     private Power _currentRedUnit;
     private Team _team;
 
