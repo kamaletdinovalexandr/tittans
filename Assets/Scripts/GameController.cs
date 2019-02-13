@@ -6,7 +6,7 @@ using Random = UnityEngine.Random;
 using UnityEngine.UI;
 
 public enum TeamColor { red, blue }
-public enum Power { none, paper, scissors, rock, titan }
+public enum Power { none, paper, scissors, rock, titan, tower, mine }
 
 public class GameController : MonoBehaviour {
 	private static GameController _instance;
@@ -26,6 +26,8 @@ public class GameController : MonoBehaviour {
 	[SerializeField] private Unit _scissorsPrefab;
 	[SerializeField] private Unit _paperPrefab;
 	[SerializeField] private Unit _titanPrefab;
+	[SerializeField] private Unit _towerPrefab;
+	[SerializeField] private Unit _minePrefab;
 	
 	[SerializeField] private Text _redTeamEnergyText;
 	[SerializeField] private Text _blueTeamEnergyText;
@@ -41,6 +43,10 @@ public class GameController : MonoBehaviour {
 	[SerializeField] private Image _scissorsBuyImage;
 	[SerializeField] private Text _paperCost;
 	[SerializeField] private Image _paperBuyImage;
+	[SerializeField] private Text _towerCost;
+	[SerializeField] private Image _towerBuyImage;
+	[SerializeField] private Text _mineCost;
+	[SerializeField] private Image _mineBuyImage;
 	
 	#endregion
 	
@@ -48,7 +54,9 @@ public class GameController : MonoBehaviour {
 		{ Power.rock , 3 },
 		{ Power.paper, 4 },
 		{ Power.scissors, 6 },
-		{ Power.titan, 8 }
+		{ Power.titan, 8 },
+		{ Power.tower, 9 },
+		{ Power.mine, 9 }
 	};	
 	
 	private bool _gameRunning;
@@ -58,20 +66,25 @@ public class GameController : MonoBehaviour {
 	void Awake () {
 		_instance = this;
 		Init();
+		SetUICosts();
 		_gameRunning = true;
 	}
 
 	private void Init() {
 		_redTeam = new Team(_blueBase.transform.position, _redArea.position, _redArea.localScale / 2f);
-		var npcAction = new NpcUpdate(_redTeam);
-		_redTeam.ActionBehaviour = npcAction;
-
+		_redTeam.ActionBehaviour = new NpcUpdate(_redTeam);
 		_blueTeam = new Team(_redBase.transform.position, _blueArea.position, _blueArea.localScale / 2f);
+		
+		_gameOver.text = String.Empty;
+	}
+
+	private void SetUICosts() {
 		_titanCost.text = Costs[Power.titan].ToString();
 		_rockCost.text = Costs[Power.rock].ToString();
 		_scissorsCost.text = Costs[Power.scissors].ToString();
 		_paperCost.text = Costs[Power.paper].ToString();
-		_gameOver.text = String.Empty;
+		_towerCost.text = Costs[Power.tower].ToString();
+		_mineCost.text = Costs[Power.mine].ToString();
 	}
 
 	void FixedUpdate () {
@@ -124,6 +137,12 @@ public class GameController : MonoBehaviour {
 			case Power.titan:
 				prefab = _titanPrefab;
 				break;
+			case Power.tower:
+				prefab = _towerPrefab;
+				break;
+			case Power.mine:
+				prefab = _minePrefab;
+				break;
 		}
 		
 		var unit = Instantiate(prefab, spawnPosition, Quaternion.identity);
@@ -162,6 +181,16 @@ public class GameController : MonoBehaviour {
 		_rockBuyImage.color = canBuy
 			? SetAlpha(_rockBuyImage.color, 1f)
 			: SetAlpha(_rockBuyImage.color, 0.2f);
+		
+		canBuy = IsEnergyAvailable(Power.tower, _blueTeam.Energy);
+		_towerBuyImage.color = canBuy
+			? SetAlpha(_towerBuyImage.color, 1f)
+			: SetAlpha(_towerBuyImage.color, 0.2f);
+		
+		canBuy = IsEnergyAvailable(Power.mine, _blueTeam.Energy);
+		_mineBuyImage.color = canBuy
+			? SetAlpha(_mineBuyImage.color, 1f)
+			: SetAlpha(_mineBuyImage.color, 0.2f);
 	}
 
 	private Color SetAlpha(Color color, float alpha) {

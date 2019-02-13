@@ -13,6 +13,7 @@ public class Base : MonoBehaviour {
 			return;
 		
 		BaseLives -= 1;
+		Debug.Log(CurrentTeam.ToString() +  " is destroyed unit " + otherUnit.Team);
 		Destroy(otherUnit.gameObject);
 	}
 }
