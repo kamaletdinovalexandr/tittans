@@ -10,8 +10,33 @@ public class Unit : MonoBehaviour {
 	public TeamColor Team;
 	public Power UnitPower;
 	public Vector2 TargetPosition;
-	private Transform _nearEnemyTransform;
-	private bool _runAway;
+	public Transform NearEnemyTransform;
+	public bool RunAway;
+	private ICollideBehaviour _collideBehaviour;
+
+	private void Awake() {
+		switch (UnitPower) {
+			case Power.mine:
+				_collideBehaviour = new MineBehaviour(this);
+				break;
+			case Power.titan:
+				_collideBehaviour = new TitanBehaviour(this);
+				break;
+			case Power.tower:
+				_collideBehaviour = new TowerBehaviour(this);
+				break;
+			case Power.rock:
+				_collideBehaviour = new RockBehaviour(this);
+				break;
+			case Power.paper:
+				_collideBehaviour = new PaperBehaviour(this);
+				break;
+			case Power.scissors:
+				_collideBehaviour = new ScissorsBehaviour(this);
+				break;
+			
+		}
+	}
 
 	void Update () {
 		if (Speed < 0.01f)
@@ -19,10 +44,10 @@ public class Unit : MonoBehaviour {
 		
 		 Vector2 targetPosition = TargetPosition;
 
-		 if (_nearEnemyTransform != null)
-			 targetPosition = _nearEnemyTransform.position;
+		 if (NearEnemyTransform != null)
+			 targetPosition = NearEnemyTransform.position;
 		 
-		if (_runAway && _nearEnemyTransform != null) {
+		if (RunAway && NearEnemyTransform != null) {
 			targetPosition = transform.position * -1;
 		}
 
@@ -53,27 +78,7 @@ public class Unit : MonoBehaviour {
 		if (unit == null || Team == unit.Team)
 			return;
 
-		if (UnitPower == Power.mine && unit.UnitPower != Power.mine) {
-			Speed = 5f;
-			_nearEnemyTransform = unit.transform;
-			_runAway = false;
-			return;
-		}
-
-		if (UnitPower == Power.tower && unit.UnitPower != Power.tower) {
-			unit.AlternateSpeed = 0.2f;
-			return;
-		}
-			
-		if (UnitPower == Power.rock && unit.UnitPower == Power.scissors 
-		    || UnitPower == Power.paper && unit.UnitPower == Power.rock) {
-			_nearEnemyTransform = unit.transform;
-			_runAway = false;
-			return;
-		}
-		
-		_nearEnemyTransform = unit.transform;
-		_runAway = true;
+		_collideBehaviour.DoCollide(unit);
 	}
 
 	private void OnTriggerExit2D(Collider2D other) {
@@ -81,8 +86,8 @@ public class Unit : MonoBehaviour {
 		if (unit == null || Team == unit.Team)
 			return;
 		
-		_nearEnemyTransform = null;
-		_runAway = false;
+		NearEnemyTransform = null;
+		RunAway = false;
 		AlternateSpeed = 0f;
 		if (UnitPower == Power.mine)
 			Speed = 0f;
