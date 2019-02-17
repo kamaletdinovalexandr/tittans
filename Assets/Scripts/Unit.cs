@@ -38,7 +38,7 @@ public class Unit : MonoBehaviour {
 		}
 	}
 
-	void Update () {
+	void FixedUpdate () {
 		if (Speed < 0.01f)
 			return;
 		
@@ -48,7 +48,7 @@ public class Unit : MonoBehaviour {
 			 targetPosition = NearEnemyTransform.position;
 		 
 		if (RunAway && NearEnemyTransform != null) {
-			targetPosition = transform.position * -1;
+			targetPosition = transform.position - NearEnemyTransform.position;
 		}
 
 		MoveTo(targetPosition);
@@ -69,7 +69,7 @@ public class Unit : MonoBehaviour {
 			otherUnit.TakeDamage();
 		}
 		
-		if (UnitPower == Power.mine)
+		if (UnitPower == Power.mine || UnitPower == Power.tower)
 			TakeDamage();
 	}
 
@@ -83,14 +83,14 @@ public class Unit : MonoBehaviour {
 
 	private void OnTriggerExit2D(Collider2D other) {
 		var unit = other.gameObject.GetComponent<Unit>();
-		if (unit == null || Team == unit.Team)
+		if (unit != null && Team == unit.Team) {
 			return;
-		
+		}
+
 		NearEnemyTransform = null;
 		RunAway = false;
 		AlternateSpeed = 0f;
-		if (UnitPower == Power.mine)
-			Speed = 0f;
+
 	}
 
 	private bool IsPowerfullThen(Power otherPower) {
@@ -99,13 +99,15 @@ public class Unit : MonoBehaviour {
 			|| UnitPower == Power.rock && otherPower == Power.scissors
 		    || UnitPower == Power.scissors && otherPower == Power.paper
 		    || UnitPower == Power.paper && otherPower == Power.rock
-			|| otherPower == Power.tower;
+			|| UnitPower == Power.tower;
 	}
 
 	public void TakeDamage() {
 		Lives--;
-		if (Lives <= 0)
+		Debug.Log("Taken damage: Lives:" + Lives);
+		if (Lives <= 0) {
 			Debug.Log("No lives left with power: " + UnitPower);
 			Destroy(gameObject);
+		}
 	}
 }

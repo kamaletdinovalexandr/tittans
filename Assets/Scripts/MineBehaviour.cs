@@ -8,6 +8,5 @@ public class MineBehaviour : AbstractCollideBehaviour {
              
          _unit.Speed = 5f;
          _unit.NearEnemyTransform = unit.transform;
-         _unit.RunAway = false;
      }
  }
