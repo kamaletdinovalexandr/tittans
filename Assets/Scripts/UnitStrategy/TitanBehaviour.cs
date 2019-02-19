@@ -1,10 +1,12 @@
+using GameEntitties;
 
-public class TitanBehaviour : AbstractCollideBehaviour {
-    
-    public TitanBehaviour(Unit unit) : base(unit) { }
-    
-    public override void DoCollide(Unit unit) {
-        
-    }
-    
+namespace Strategy {
+	public class TitanBehaviour : AbstractCollideBehaviour {
+
+		public TitanBehaviour(Unit unit) : base(unit) { }
+
+		public override void DoCollide(Unit unit) {
+
+		}
+	}   
 }

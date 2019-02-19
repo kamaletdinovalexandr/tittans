@@ -1,0 +1,1 @@
+﻿public enum Power { none, paper, scissors, rock, titan, tower, mine }
