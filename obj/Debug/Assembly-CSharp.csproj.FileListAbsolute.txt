@@ -1,0 +1,2 @@
+/Users/alx/ghost/Tittans/obj/Debug/Assembly-CSharp.csprojAssemblyReference.cache
+/Users/alx/ghost/Tittans/obj/Debug/Assembly-CSharp.csproj.CoreCompileInputs.cache
