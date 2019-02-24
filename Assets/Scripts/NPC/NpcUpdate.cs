@@ -1,6 +1,7 @@
 using UnityEngine;
 using GameEntitties;
 using GameCore;
+using Factory;
 
 namespace NPCInput {
 	public class NpcUpdate : IUpdate {
@@ -32,7 +33,7 @@ namespace NPCInput {
 
 			_team.Energy -= GameController.Instance.Costs[_currentRedUnit];
 			var position = GetRandomPosition(_team.AreaPosition, _team.HalfScale);
-			GameController.Instance.SpawnUnit(_currentRedUnit, TeamColor.red, position, _team.EnemyBasePosition);
+			UnitFactory.Instance.SpawnUnit(_currentRedUnit, TeamColor.red, position, _team.EnemyBasePosition);
 			_currentRedUnit = Power.none;
 		}
 
