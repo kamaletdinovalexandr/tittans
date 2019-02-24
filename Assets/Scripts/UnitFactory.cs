@@ -26,7 +26,7 @@ namespace Factory {
 			_instance = this;
 		}
 
-		public void SpawnUnit(Power power, TeamColor teamColor, Vector2 spawnPosition, Vector2 targetPosition) {
+		public void SpawnUnit(Power power, Team team, TeamColor teamColor, Vector2 spawnPosition, Vector2 targetPosition) {
 			Unit prefab = _rockPrefab;
 			switch (power) {
 				case Power.scissors:
@@ -48,34 +48,31 @@ namespace Factory {
 
 			var unit = Instantiate(prefab, spawnPosition, Quaternion.identity);
 			unit.UnitPower = power;
-			unit.Team = teamColor;
-			unit.TargetPosition = targetPosition;
+			unit.TeamColor = teamColor;
+			unit.Team = team;
 			SetUnitBehaviour(unit);
 		}
 
 		public void SetUnitBehaviour(Unit unit) {
 			switch (unit.UnitPower) {
 				case Power.mine: 
-					unit.CollideBehaviour = new MineBehaviour(unit);
+					unit.UnitBehaviour = new MineBehaviour(unit);
 					break;
 				case Power.titan:
-				unit.CollideBehaviour = new BaseCollideBehaviour(unit);
+				unit.UnitBehaviour = new BaseUnitBehaviour(unit);
 					break;
 				case Power.tower:
-					unit.CollideBehaviour = new TowerBehaviour(unit);
+					unit.UnitBehaviour = new TowerBehaviour(unit);
 					break;
 				case Power.rock:
-					unit.CollideBehaviour = new RockBehaviour(unit);
+					unit.UnitBehaviour = new RockBehaviour(unit);
 					break;
 				case Power.paper:
-					unit.CollideBehaviour = new PaperBehaviour(unit);
-					break;
-				case Power.scissors:
-					unit.CollideBehaviour = new ScissorsBehaviour(unit);
+					unit.UnitBehaviour = new PaperBehaviour(unit);
 					break;
 				default:
-					unit.CollideBehaviour = new BaseCollideBehaviour(unit);
-				break;
+					unit.UnitBehaviour = new BaseUnitBehaviour(unit);
+					break;
 			}
 		}
 	}

@@ -1,17 +1,17 @@
 using GameEntitties;
 using UnityEngine;
+using System.Linq;
 
 namespace Strategy {
-	public class TowerBehaviour : BaseCollideBehaviour {
+	public class TowerBehaviour : BaseUnitBehaviour {
 
 		public TowerBehaviour(Unit unit) : base(unit) { }
 
-		public override void DoCollide(Unit unit) {
-			if (unit.UnitPower == Power.tower)
-				return;
+		public override void Behave() {
+			var enemies = _unit.NearEnemies.Where(u => u.UnitPower == Power.scissors);
 
-			Debug.Log("Tower: Setting low speed to unit with power: " + unit.UnitPower);
-			unit.AlternateSpeed = 0.2f;
+			if (enemies.Any())
+				enemies.Select(u => u.DefaultSpeed = 0.5f);
 		}
 	}
 }

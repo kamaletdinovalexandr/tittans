@@ -73,7 +73,7 @@ namespace GameCore {
 		}
 
 		public void PlayerSpawn(Power power, Vector2 position) {
-			UnitFactory.Instance.SpawnUnit(power, TeamColor.blue, position, _redBase.transform.position);
+			UnitFactory.Instance.SpawnUnit(power, _blueTeam, TeamColor.blue, position, _redBase.transform.position);
 			_blueTeam.Energy -= Costs[power];
 
 		}
@@ -85,7 +85,5 @@ namespace GameCore {
 		public bool IsBlueSpawnAvailable(Power power, Vector3 position) {
 			return IsEnergyAvailable(power, _blueTeam.Energy) && _blueTeam.IsInsideArea(position);
 		}
-
-
 	}
 }

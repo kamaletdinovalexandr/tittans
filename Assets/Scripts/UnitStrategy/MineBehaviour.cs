@@ -1,16 +1,18 @@
 using GameEntitties;
+using UnityEngine;
+using System.Linq;
 
 namespace Strategy {
-	public class MineBehaviour : BaseCollideBehaviour {
+	public class MineBehaviour : BaseUnitBehaviour {
 
 		public MineBehaviour(Unit unit) : base(unit) { }
 
-		public override void DoCollide(Unit unit) {
-			if (unit.UnitPower == Power.mine)
-				return;
-
-			_unit.Speed = 5f;
-			_unit.NearEnemyTransform = unit.transform;
+		public override void Behave() {
+			if (_unit.NearEnemies.Any()) {
+				_unit.transform.position = Vector2.MoveTowards(_unit.transform.position, 
+				_unit.NearEnemies.First().transform.position,
+				_unit.DefaultSpeed * Time.deltaTime);
+			}
 		}
 	}
 }

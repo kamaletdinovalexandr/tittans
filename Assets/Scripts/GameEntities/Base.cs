@@ -8,11 +8,11 @@ namespace GameEntitties {
 
 		private void OnCollisionEnter2D(Collision2D other) {
 			var otherUnit = other.gameObject.GetComponent<Unit>();
-			if (otherUnit == null || otherUnit.Team == CurrentTeam)
+			if (otherUnit == null || otherUnit.TeamColor == CurrentTeam)
 				return;
 
 			BaseLives -= 1;
-			Debug.Log(CurrentTeam.ToString() + " base is destroyed unit " + otherUnit.Team);
+			Debug.Log(CurrentTeam.ToString() + " base is destroyed unit " + otherUnit.TeamColor);
 			Destroy(otherUnit.gameObject);
 		}
 	}

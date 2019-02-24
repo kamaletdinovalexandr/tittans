@@ -1,47 +1,25 @@
 ﻿using UnityEngine;
-using Strategy;
+using System.Collections.Generic;
 
 namespace GameEntitties {
 	public class Unit : MonoBehaviour {
 
-		public float Speed;
-		public float AlternateSpeed { get; set; }
+		public float DefaultSpeed;
 		public int Lives;
-		public TeamColor Team;
+		public TeamColor TeamColor;
 		public Power UnitPower;
-		public Vector2 TargetPosition;
-		public Transform NearEnemyTransform;
-		public bool RunAway;
-		public ICollideBehaviour CollideBehaviour;
-
-		private void Awake() {
-
-		}
+		public List<Unit> NearEnemies = new List<Unit>();
+		public IUnitBehaviour UnitBehaviour { get; set; }
+		public float CurrentSpeed { get; set; }
+		public Team Team { get; set; }
 
 		void FixedUpdate() {
-			if (Speed < 0.01f)
-				return;
-
-			Vector2 targetPosition = TargetPosition;
-
-			if (NearEnemyTransform != null)
-				targetPosition = NearEnemyTransform.position;
-
-			if (RunAway && NearEnemyTransform != null) {
-				targetPosition = transform.position - NearEnemyTransform.position;
-			}
-
-			MoveTo(targetPosition);
-		}
-
-		private void MoveTo(Vector2 position) {
-			var speed = AlternateSpeed > 0 ? AlternateSpeed : Speed;
-			transform.position = Vector2.MoveTowards(transform.position, position, speed * Time.deltaTime);
+			UnitBehaviour.Behave();
 		}
 
 		private void OnCollisionEnter2D(Collision2D other) {
 			var otherUnit = other.gameObject.GetComponent<Unit>();
-			if (otherUnit == null || Team == otherUnit.Team)
+			if (otherUnit == null || TeamColor == otherUnit.TeamColor)
 				return;
 
 			if (IsPowerfullThen(otherUnit.UnitPower)) {
@@ -55,22 +33,23 @@ namespace GameEntitties {
 
 		private void OnTriggerEnter2D(Collider2D other) {
 			var unit = other.gameObject.GetComponent<Unit>();
-			if (unit == null || Team == unit.Team)
+			if (unit == null || TeamColor == unit.TeamColor)
 				return;
 
-			CollideBehaviour.DoCollide(unit);
+			Debug.Log(UnitPower + ": enemy unit is entered trigger area: " + unit.UnitPower);
+			if (!NearEnemies.Contains(unit))
+				NearEnemies.Add(unit);
 		}
 
 		private void OnTriggerExit2D(Collider2D other) {
 			var unit = other.gameObject.GetComponent<Unit>();
-			if (unit != null && Team == unit.Team) {
+			if (unit != null && TeamColor == unit.TeamColor) {
 				return;
 			}
 
-			NearEnemyTransform = null;
-			RunAway = false;
-			AlternateSpeed = 0f;
-
+			Debug.Log(UnitPower + ": enemy unit is leaved trigger area: " + unit.UnitPower);
+			if (NearEnemies.Contains(unit))
+				NearEnemies.Remove(unit);
 		}
 
 		private bool IsPowerfullThen(Power otherPower) {
