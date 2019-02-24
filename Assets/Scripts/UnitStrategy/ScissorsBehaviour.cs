@@ -1,7 +1,7 @@
 using GameEntitties;
 
 namespace Strategy {
-	public class ScissorsBehaviour : AbstractCollideBehaviour {
+	public class ScissorsBehaviour : BaseCollideBehaviour {
 
 		public ScissorsBehaviour(Unit unit) : base(unit) { }
 

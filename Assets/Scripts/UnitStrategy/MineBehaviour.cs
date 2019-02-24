@@ -1,7 +1,7 @@
 using GameEntitties;
 
 namespace Strategy {
-	public class MineBehaviour : AbstractCollideBehaviour {
+	public class MineBehaviour : BaseCollideBehaviour {
 
 		public MineBehaviour(Unit unit) : base(unit) { }
 

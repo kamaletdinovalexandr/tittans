@@ -2,7 +2,7 @@ using GameEntitties;
 using UnityEngine;
 
 namespace Strategy {
-	public class TowerBehaviour : AbstractCollideBehaviour {
+	public class TowerBehaviour : BaseCollideBehaviour {
 
 		public TowerBehaviour(Unit unit) : base(unit) { }
 

@@ -1,7 +1,7 @@
 using GameEntitties;
 
 namespace Strategy {
-	public class PaperBehaviour : AbstractCollideBehaviour {
+	public class PaperBehaviour : BaseCollideBehaviour {
 
 		public PaperBehaviour(Unit unit) : base(unit) { }
 

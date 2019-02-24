@@ -12,30 +12,10 @@ namespace GameEntitties {
 		public Vector2 TargetPosition;
 		public Transform NearEnemyTransform;
 		public bool RunAway;
-		private ICollideBehaviour _collideBehaviour;
+		public ICollideBehaviour CollideBehaviour;
 
 		private void Awake() {
-			switch (UnitPower) {
-				case Power.mine:
-					_collideBehaviour = new MineBehaviour(this);
-					break;
-				case Power.titan:
-					_collideBehaviour = new TitanBehaviour(this);
-					break;
-				case Power.tower:
-					_collideBehaviour = new TowerBehaviour(this);
-					break;
-				case Power.rock:
-					_collideBehaviour = new RockBehaviour(this);
-					break;
-				case Power.paper:
-					_collideBehaviour = new PaperBehaviour(this);
-					break;
-				case Power.scissors:
-					_collideBehaviour = new ScissorsBehaviour(this);
-					break;
 
-			}
 		}
 
 		void FixedUpdate() {
@@ -65,7 +45,7 @@ namespace GameEntitties {
 				return;
 
 			if (IsPowerfullThen(otherUnit.UnitPower)) {
-				Debug.Log("Unit with power " + UnitPower + " is damaged unit " + otherUnit.UnitPower);
+				Debug.Log(UnitPower + " is damage unit " + otherUnit.UnitPower);
 				otherUnit.TakeDamage();
 			}
 
@@ -78,7 +58,7 @@ namespace GameEntitties {
 			if (unit == null || Team == unit.Team)
 				return;
 
-			_collideBehaviour.DoCollide(unit);
+			CollideBehaviour.DoCollide(unit);
 		}
 
 		private void OnTriggerExit2D(Collider2D other) {
@@ -104,9 +84,9 @@ namespace GameEntitties {
 
 		public void TakeDamage() {
 			Lives--;
-			Debug.Log("Taken damage: Lives:" + Lives);
+			Debug.Log(UnitPower + " is damaged: Lives:" + Lives);
 			if (Lives <= 0) {
-				Debug.Log("No lives left with power: " + UnitPower);
+				Debug.Log(UnitPower + " no lives left");
 				Destroy(gameObject);
 			}
 		}

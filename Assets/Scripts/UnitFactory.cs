@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Strategy;
 using GameEntitties;
 
 namespace Factory {
@@ -49,6 +50,33 @@ namespace Factory {
 			unit.UnitPower = power;
 			unit.Team = teamColor;
 			unit.TargetPosition = targetPosition;
+			SetUnitBehaviour(unit);
+		}
+
+		public void SetUnitBehaviour(Unit unit) {
+			switch (unit.UnitPower) {
+				case Power.mine: 
+					unit.CollideBehaviour = new MineBehaviour(unit);
+					break;
+				case Power.titan:
+				unit.CollideBehaviour = new BaseCollideBehaviour(unit);
+					break;
+				case Power.tower:
+					unit.CollideBehaviour = new TowerBehaviour(unit);
+					break;
+				case Power.rock:
+					unit.CollideBehaviour = new RockBehaviour(unit);
+					break;
+				case Power.paper:
+					unit.CollideBehaviour = new PaperBehaviour(unit);
+					break;
+				case Power.scissors:
+					unit.CollideBehaviour = new ScissorsBehaviour(unit);
+					break;
+				default:
+					unit.CollideBehaviour = new BaseCollideBehaviour(unit);
+				break;
+			}
 		}
 	}
 }

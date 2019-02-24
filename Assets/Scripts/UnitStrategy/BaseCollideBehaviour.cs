@@ -1,10 +1,10 @@
 using GameEntitties;
 
 namespace Strategy {
-	public class AbstractCollideBehaviour : ICollideBehaviour {
+	public class BaseCollideBehaviour : ICollideBehaviour {
 		protected readonly Unit _unit;
 
-		public AbstractCollideBehaviour(Unit unit) {
+		public BaseCollideBehaviour(Unit unit) {
 			_unit = unit;
 		}
 

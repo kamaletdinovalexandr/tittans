@@ -1,7 +1,7 @@
 using GameEntitties;
 
 namespace Strategy {
-	public class RockBehaviour : AbstractCollideBehaviour {
+	public class RockBehaviour : BaseCollideBehaviour {
 
 		public RockBehaviour(Unit unit) : base(unit) { }
 
