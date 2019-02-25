@@ -43,11 +43,7 @@ namespace GameEntitties {
 
 		private void OnTriggerExit2D(Collider2D other) {
 			var unit = other.gameObject.GetComponent<Unit>();
-			if (unit != null && TeamColor == unit.TeamColor) {
-				return;
-			}
-
-			Debug.Log(UnitPower + ": enemy unit is leaved trigger area: " + unit.UnitPower);
+			
 			if (NearEnemies.Contains(unit))
 				NearEnemies.Remove(unit);
 		}

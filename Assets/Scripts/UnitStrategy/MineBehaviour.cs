@@ -9,9 +9,13 @@ namespace Strategy {
 
 		public override void Behave() {
 			if (_unit.NearEnemies.Any()) {
+                var enemy = _unit.NearEnemies.First();
+                if (enemy == null)
+                    return;
+                
 				_unit.transform.position = Vector2.MoveTowards(_unit.transform.position, 
-				_unit.NearEnemies.First().transform.position,
-				_unit.DefaultSpeed * Time.deltaTime);
+                                        				enemy.transform.position,
+                                        				_unit.DefaultSpeed * Time.deltaTime);
 			}
 		}
 	}

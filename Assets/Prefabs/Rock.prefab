@@ -112,13 +112,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 34c1373596a324c13986bbfd32e4a596, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Speed: 0.5
+  DefaultSpeed: 4
   Lives: 1
-  Team: 0
+  TeamColor: 0
   UnitPower: 3
-  TargetPosition: {x: 0, y: 0}
-  NearEnemyTransform: {fileID: 0}
-  RunAway: 0
+  NearEnemies: []
 --- !u!58 &58984218767574198
 CircleCollider2D:
   m_ObjectHideFlags: 0
