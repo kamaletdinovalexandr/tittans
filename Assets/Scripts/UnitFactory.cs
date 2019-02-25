@@ -11,6 +11,8 @@ namespace Factory {
 
 		public static UnitFactory Instance { get { return _instance; } }
 
+		Dictionary<Power, IUnitBehaviour> UnitBehaviours = new Dictionary<Power, IUnitBehaviour>();
+
 		#region EditorSetups
 
 		[SerializeField] private Unit _rockPrefab;
@@ -26,7 +28,7 @@ namespace Factory {
 			_instance = this;
 		}
 
-		public void SpawnUnit(Power power, Team team, TeamColor teamColor, Vector2 spawnPosition, Vector2 targetPosition) {
+		public void SpawnUnit(Power power, Team team, Vector2 spawnPosition) {
 			Unit prefab = _rockPrefab;
 			switch (power) {
 				case Power.scissors:
@@ -48,7 +50,6 @@ namespace Factory {
 
 			var unit = Instantiate(prefab, spawnPosition, Quaternion.identity);
 			unit.UnitPower = power;
-			unit.TeamColor = teamColor;
 			unit.Team = team;
 			SetUnitBehaviour(unit);
 		}

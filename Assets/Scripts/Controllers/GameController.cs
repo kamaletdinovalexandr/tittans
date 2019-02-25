@@ -43,9 +43,9 @@ namespace GameCore {
 		}
 
 		private void Init() {
-			_redTeam = new Team(_blueBase.transform.position, _redArea.position, _redArea.localScale / 2f);
+			_redTeam = new Team(TeamColor.red, _blueBase.transform.position, _redArea.position, _redArea.localScale / 2f);
 			_redTeam.ActionBehaviour = new NpcUpdate(_redTeam);
-			_blueTeam = new Team(_redBase.transform.position, _blueArea.position, _blueArea.localScale / 2f);
+			_blueTeam = new Team(TeamColor.blue, _redBase.transform.position, _blueArea.position, _blueArea.localScale / 2f);
 		}
 
 		void FixedUpdate() {
@@ -73,7 +73,7 @@ namespace GameCore {
 		}
 
 		public void PlayerSpawn(Power power, Vector2 position) {
-			UnitFactory.Instance.SpawnUnit(power, _blueTeam, TeamColor.blue, position, _redBase.transform.position);
+			UnitFactory.Instance.SpawnUnit(power, _blueTeam, position);
 			_blueTeam.Energy -= Costs[power];
 
 		}

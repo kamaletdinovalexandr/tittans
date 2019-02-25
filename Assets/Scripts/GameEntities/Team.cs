@@ -2,13 +2,15 @@ using UnityEngine;
 
 namespace GameEntitties {
 	public class Team {
+		public TeamColor TeamColor { get; private set; }
 		public float Energy { get; set; }
 		public Vector2 EnemyBasePosition { get; private set; }
 		public Vector2 AreaPosition { get; private set; }
 		public Vector2 HalfScale { get; private set; }
 		public IUpdate ActionBehaviour { get; set; }
 
-		public Team(Vector2 enemyBasePosition, Vector2 areaPosition, Vector2 halfScale) {
+		public Team(TeamColor teamColor, Vector2 enemyBasePosition, Vector2 areaPosition, Vector2 halfScale) {
+			TeamColor = teamColor;
 			EnemyBasePosition = enemyBasePosition;
 			AreaPosition = areaPosition;
 			HalfScale = halfScale;

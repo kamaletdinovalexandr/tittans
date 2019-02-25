@@ -8,10 +8,8 @@ namespace Strategy {
 		public TowerBehaviour(Unit unit) : base(unit) { }
 
 		public override void Behave() {
-			var enemies = _unit.NearEnemies.Where(u => u.UnitPower == Power.scissors);
-
-			if (enemies.Any())
-				enemies.Select(u => u.DefaultSpeed = 0.5f);
+			if (_unit.NearEnemies.Any())
+				_unit.NearEnemies.ForEach(x => x.DefaultSpeed = 0.5f);
 		}
 	}
 }

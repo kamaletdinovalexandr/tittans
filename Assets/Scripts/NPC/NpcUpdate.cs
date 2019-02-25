@@ -33,7 +33,7 @@ namespace NPCInput {
 
 			_team.Energy -= GameController.Instance.Costs[_currentRedUnit];
 			var position = GetRandomPosition(_team.AreaPosition, _team.HalfScale);
-			UnitFactory.Instance.SpawnUnit(_currentRedUnit, _team, TeamColor.red, position, _team.EnemyBasePosition);
+			UnitFactory.Instance.SpawnUnit(_currentRedUnit, _team, position);
 			_currentRedUnit = Power.none;
 		}
 

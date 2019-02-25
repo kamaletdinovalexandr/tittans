@@ -6,12 +6,12 @@ namespace GameEntitties {
 
 		public float DefaultSpeed;
 		public int Lives;
-		public TeamColor TeamColor;
 		public Power UnitPower;
 		public List<Unit> NearEnemies = new List<Unit>();
 		public IUnitBehaviour UnitBehaviour { get; set; }
 		public float CurrentSpeed { get; set; }
 		public Team Team { get; set; }
+		public string TeamColor { get; internal set; }
 
 		void FixedUpdate() {
 			UnitBehaviour.Behave();
@@ -19,7 +19,7 @@ namespace GameEntitties {
 
 		private void OnCollisionEnter2D(Collision2D other) {
 			var otherUnit = other.gameObject.GetComponent<Unit>();
-			if (otherUnit == null || TeamColor == otherUnit.TeamColor)
+			if (otherUnit == null || Team == otherUnit.Team)
 				return;
 
 			if (IsPowerfullThen(otherUnit.UnitPower)) {
@@ -33,7 +33,7 @@ namespace GameEntitties {
 
 		private void OnTriggerEnter2D(Collider2D other) {
 			var unit = other.gameObject.GetComponent<Unit>();
-			if (unit == null || TeamColor == unit.TeamColor)
+			if (unit == null || Team == unit.Team)
 				return;
 
 			Debug.Log(UnitPower + ": enemy unit is entered trigger area: " + unit.UnitPower);
@@ -43,9 +43,10 @@ namespace GameEntitties {
 
 		private void OnTriggerExit2D(Collider2D other) {
 			var unit = other.gameObject.GetComponent<Unit>();
-			
-			if (NearEnemies.Contains(unit))
+			if (NearEnemies.Contains(unit)) {
 				NearEnemies.Remove(unit);
+				Debug.Log(UnitPower + ": enemy unit is exited trigger area");
+			}
 		}
 
 		private bool IsPowerfullThen(Power otherPower) {
