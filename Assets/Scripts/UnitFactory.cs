@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using Strategy;
 using GameEntitties;
+using FlyWeight;
 
 namespace Factory {
 	public class UnitFactory : MonoBehaviour {
@@ -11,51 +12,65 @@ namespace Factory {
 
 		public static UnitFactory Instance { get { return _instance; } }
 
-		Dictionary<Power, IUnitBehaviour> UnitBehaviours = new Dictionary<Power, IUnitBehaviour>();
-
 		#region EditorSetups
 
-		[SerializeField] private Unit _rockPrefab;
-		[SerializeField] private Unit _scissorsPrefab;
-		[SerializeField] private Unit _paperPrefab;
-		[SerializeField] private Unit _titanPrefab;
-		[SerializeField] private Unit _towerPrefab;
-		[SerializeField] private Unit _minePrefab;
+		[SerializeField] private UnitContext _prefab;
+		[SerializeField] private Sprite _rockSprite;
+		[SerializeField] private Sprite _scissorsSprite;
+		[SerializeField] private Sprite _paperSprite;
+		[SerializeField] private Sprite _titanSprite;
+		[SerializeField] private Sprite _towerSprite;
+		[SerializeField] private Sprite _mineSprite;
+
+		[SerializeField] private Dictionary<Power, UnitFlyweight> Flyweights = new Dictionary<Power, UnitFlyweight>();
 
 		#endregion
+
+		private List<UnitFlyweight> UnitFlyweights = new List<UnitFlyweight>();
 
 		private void Start() {
 			_instance = this;
 		}
 
 		public void SpawnUnit(Power power, Team team, Vector2 spawnPosition) {
-			Unit prefab = _rockPrefab;
+			UnitContext unit = Instantiate(_prefab, spawnPosition, Quaternion.identity);
+
 			switch (power) {
 				case Power.scissors:
-				prefab = _scissorsPrefab;
+					unit.SpriteRenderer.sprite = _scissorsSprite;
+
 				break;
 				case Power.paper:
-				prefab = _paperPrefab;
+					unit.SpriteRenderer.sprite = _paperSprite;
 				break;
 				case Power.titan:
-				prefab = _titanPrefab;
+					unit.SpriteRenderer.sprite = _titanSprite;
 				break;
 				case Power.tower:
-				prefab = _towerPrefab;
+					unit.SpriteRenderer.sprite = _titanSprite;
 				break;
 				case Power.mine:
-				prefab = _minePrefab;
+					unit.SpriteRenderer.sprite = _mineSprite;
 				break;
 			}
 
-			var unit = Instantiate(prefab, spawnPosition, Quaternion.identity);
-			unit.UnitPower = power;
+
 			unit.Team = team;
 			SetUnitBehaviour(unit);
 		}
 
-		public void SetUnitBehaviour(Unit unit) {
-			switch (unit.UnitPower) {
+		public UnitFlyweight GetFlytWeight(Power power, int cost, Color color, float scale) {
+			if (Flyweights.ContainsKey(power))
+				return Flyweights[power];
+			else {
+				var newFlyWeight = new UnitFlyweight(power, cost, color, scale);
+				Flyweights.Add(power, newFlyWeight);
+				return newFlyWeight;
+			}
+		}
+
+		public void SetUnitBehaviour(UnitContext unit) {
+			switch (unit.UnitFlyweight.Power) {
 				case Power.mine: 
 					unit.UnitBehaviour = new MineBehaviour(unit);
 					break;

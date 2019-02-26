@@ -5,7 +5,7 @@ using System.Linq;
 namespace Strategy {
 	public class MineBehaviour : BaseUnitBehaviour {
 
-		public MineBehaviour(Unit unit) : base(unit) { }
+		public MineBehaviour(UnitContext unit) : base(unit) { }
 
 		public override void Behave() {
 			if (_unit.NearEnemies.Any()) {
@@ -14,7 +14,7 @@ namespace Strategy {
 					return;
 				
                 _unit.transform.position = Vector2.MoveTowards(_unit.transform.position, enemy.transform.position,
-                                        					   _unit.DefaultSpeed * Time.deltaTime);
+                                        					   _unit.Speed * Time.deltaTime);
 			}
 		}
 	}

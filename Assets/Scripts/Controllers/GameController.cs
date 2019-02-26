@@ -4,6 +4,7 @@ using UI;
 using GameEntitties;
 using NPCInput;
 using Factory;
+using FlyWeight;
 
 namespace GameCore {
 	public class GameController : MonoBehaviour {
@@ -22,14 +23,7 @@ namespace GameCore {
 
 		#endregion
 
-		public Dictionary<Power, int> Costs = new Dictionary<Power, int>() {
-		{ Power.rock , 3 },
-		{ Power.paper, 4 },
-		{ Power.scissors, 6 },
-		{ Power.titan, 8 },
-		{ Power.tower, 9 },
-		{ Power.mine, 9 }
-	};
+		public Dictionary<Power, UnitFlyweight> Units = new Dictionary<Power, UnitFlyweight>();
 
 		private bool _gameRunning;
 		private Team _redTeam;
@@ -74,16 +68,8 @@ namespace GameCore {
 
 		public void PlayerSpawn(Power power, Vector2 position) {
 			UnitFactory.Instance.SpawnUnit(power, _blueTeam, position);
-			_blueTeam.Energy -= Costs[power];
+			//_blueTeam.Energy -= Costs[power];
 
-		}
-
-		public bool IsEnergyAvailable(Power power, float energy) {
-			return Costs.ContainsKey(power) && energy - Costs[power] >= 0;
-		}
-
-		public bool IsBlueSpawnAvailable(Power power, Vector3 position) {
-			return IsEnergyAvailable(power, _blueTeam.Energy) && _blueTeam.IsInsideArea(position);
 		}
 	}
 }

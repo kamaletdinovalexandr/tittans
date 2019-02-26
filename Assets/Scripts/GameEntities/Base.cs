@@ -7,7 +7,7 @@ namespace GameEntitties {
 		public int BaseLives;
 
 		private void OnCollisionEnter2D(Collision2D other) {
-			var otherUnit = other.gameObject.GetComponent<Unit>();
+			var otherUnit = other.gameObject.GetComponent<UnitContext>();
 			if (otherUnit == null || otherUnit.Team.TeamColor == CurrentTeam)
 				return;
 
