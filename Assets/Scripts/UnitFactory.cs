@@ -15,80 +15,55 @@ namespace Factory {
 		#region EditorSetups
 
 		[SerializeField] private UnitContext _prefab;
-		[SerializeField] private Sprite _rockSprite;
-		[SerializeField] private Sprite _scissorsSprite;
-		[SerializeField] private Sprite _paperSprite;
-		[SerializeField] private Sprite _titanSprite;
-		[SerializeField] private Sprite _towerSprite;
-		[SerializeField] private Sprite _mineSprite;
-
-		[SerializeField] private Dictionary<Power, UnitFlyweight> Flyweights = new Dictionary<Power, UnitFlyweight>();
+		[SerializeField] private List<UnitFlyweight> Flyweights = new List<UnitFlyweight>();
 
 		#endregion
-
-		private List<UnitFlyweight> UnitFlyweights = new List<UnitFlyweight>();
 
 		private void Start() {
 			_instance = this;
 		}
 
-		public void SpawnUnit(Power power, Team team, Vector2 spawnPosition) {
+		public void CreateUnit(Power power, Team team, Vector2 spawnPosition) {
 			UnitContext unit = Instantiate(_prefab, spawnPosition, Quaternion.identity);
-
-			switch (power) {
-				case Power.scissors:
-					unit.SpriteRenderer.sprite = _scissorsSprite;
-
-				break;
-				case Power.paper:
-					unit.SpriteRenderer.sprite = _paperSprite;
-				break;
-				case Power.titan:
-					unit.SpriteRenderer.sprite = _titanSprite;
-				break;
-				case Power.tower:
-					unit.SpriteRenderer.sprite = _titanSprite;
-				break;
-				case Power.mine:
-					unit.SpriteRenderer.sprite = _mineSprite;
-				break;
+			var flyweigh = GetFlytWeight(power);
+			if (flyweigh == null) {
+				throw new System.Exception("Try spawn unit of unknown type!!!");
 			}
-
 
 			unit.Team = team;
-			SetUnitBehaviour(unit);
+			unit.UnitFlyweight = flyweigh;
+			unit.UnitBehaviour = GetUnitBehaviour(unit);
 		}
 
-		public UnitFlyweight GetFlytWeight(Power power, int cost, Color color, float scale) {
-			if (Flyweights.ContainsKey(power))
-				return Flyweights[power];
-			else {
-				var newFlyWeight = new UnitFlyweight(power, cost, color, scale);
-				Flyweights.Add(power, newFlyWeight);
-				return newFlyWeight;
+		public UnitFlyweight GetFlytWeight(Power power) {
+			foreach (var flyweight in Flyweights) {
+				if (flyweight.Power == power) {
+					return flyweight;
+				}
 			}
+
+			return null;
 		}
 
-		public void SetUnitBehaviour(UnitContext unit) {
+		public IUnitBehaviour GetUnitBehaviour(UnitContext unit) {
 			switch (unit.UnitFlyweight.Power) {
 				case Power.mine: 
-					unit.UnitBehaviour = new MineBehaviour(unit);
-					break;
+					return new MineBehaviour(unit);
+
 				case Power.titan:
-				unit.UnitBehaviour = new BaseUnitBehaviour(unit);
-					break;
+					return new BaseUnitBehaviour(unit);
+
 				case Power.tower:
-					unit.UnitBehaviour = new TowerBehaviour(unit);
-					break;
+					return new TowerBehaviour(unit);
+
 				case Power.rock:
-					unit.UnitBehaviour = new RockBehaviour(unit);
-					break;
+					return new RockBehaviour(unit);
+
 				case Power.paper:
-					unit.UnitBehaviour = new PaperBehaviour(unit);
-					break;
+					return new PaperBehaviour(unit);
+
 				default:
-					unit.UnitBehaviour = new BaseUnitBehaviour(unit);
-					break;
+					return new BaseUnitBehaviour(unit);
 			}
 		}
 	}

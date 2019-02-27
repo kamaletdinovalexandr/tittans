@@ -20,10 +20,11 @@ namespace GameCore {
 		[SerializeField] private Base _blueBase;
 		[SerializeField] private Transform _redArea;
 		[SerializeField] private Transform _blueArea;
+		[SerializeField] public Dictionary<Power, int> Costs = new Dictionary<Power, int>();
 
 		#endregion
 
-		public Dictionary<Power, UnitFlyweight> Units = new Dictionary<Power, UnitFlyweight>();
+
 
 		private bool _gameRunning;
 		private Team _redTeam;
@@ -67,9 +68,17 @@ namespace GameCore {
 		}
 
 		public void PlayerSpawn(Power power, Vector2 position) {
-			UnitFactory.Instance.SpawnUnit(power, _blueTeam, position);
-			//_blueTeam.Energy -= Costs[power];
+			UnitFactory.Instance.CreateUnit(power, _blueTeam, position);
+			_blueTeam.Energy -= Costs[power];
 
+		}
+
+		public bool IsBlueSpawnAvailable(Power power, Vector3 position) {
+			return IsEnergyAvailable(power, _blueTeam.Energy) && _blueTeam.IsInsideArea(position);
+		}
+
+		public bool IsEnergyAvailable(Power power, float energy) {
+			return Costs.ContainsKey(power) && energy - Costs[power] >= 0;
 		}
 	}
 }

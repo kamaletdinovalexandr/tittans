@@ -5,16 +5,32 @@ using FlyWeight;
 namespace GameEntitties {
 	public class UnitContext : MonoBehaviour {
 
-		public UnitFlyweight UnitFlyweight;
-		public int Lives;
+
+		public Team Team { get; set; }public int Lives;
 		public List<UnitContext> NearEnemies = new List<UnitContext>();
 		public IUnitBehaviour UnitBehaviour { get; set; }
-		public float AlternateSpeed { get; set; }
-		public Team Team { get; set; }
-		public SpriteRenderer SpriteRenderer;
+		private SpriteRenderer _spriteRenderer;
+
+
+		private UnitFlyweight _unitFlyweight;
+
+		public UnitFlyweight UnitFlyweight {
+			
+			get {
+				return _unitFlyweight;
+			}
+
+			set {
+				_unitFlyweight = value;
+				_spriteRenderer.sprite = _unitFlyweight.Sprite;
+				_spriteRenderer.color = _unitFlyweight.Color;
+			}
+		}
+
+
 
 		private void Awake() {
-			SpriteRenderer = GetComponent<SpriteRenderer>();
+			_spriteRenderer = GetComponent<SpriteRenderer>();
 		}
 
 		void FixedUpdate() {

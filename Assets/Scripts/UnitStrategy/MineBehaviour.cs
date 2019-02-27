@@ -14,7 +14,7 @@ namespace Strategy {
 					return;
 				
                 _unit.transform.position = Vector2.MoveTowards(_unit.transform.position, enemy.transform.position,
-                                        					   _unit.Speed * Time.deltaTime);
+                                        					   _unit.UnitFlyweight.Speed * Time.deltaTime);
 			}
 		}
 	}

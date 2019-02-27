@@ -9,12 +9,12 @@ namespace Strategy {
 
 		public override void Behave() {
 			Vector2 target = _unit.Team.EnemyBasePosition;
-			var scissors = _unit.NearEnemies.Where(u => u.Power == Power.scissors);
+			var scissors = _unit.NearEnemies.Where(u => u.UnitFlyweight.Power == Power.scissors);
 
 			if (scissors.Any())
 				target = scissors.First().transform.position;
 
-			_unit.transform.position = Vector2.MoveTowards(_unit.transform.position, target, _unit.Speed * Time.deltaTime);
+			_unit.transform.position = Vector2.MoveTowards(_unit.transform.position, target, _unit.UnitFlyweight.Speed * Time.deltaTime);
 		}
 	}
 }

@@ -293,7 +293,7 @@ SpriteRenderer:
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: -531200073
-  m_SortingLayer: 0
+  m_SortingLayer: 2
   m_SortingOrder: 0
   m_Sprite: {fileID: 21300000, guid: 963f838393f094b339cc7e811010371b, type: 3}
   m_Color: {r: 1, g: 0, b: 0, a: 1}
@@ -915,18 +915,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8b25a2eabeaa24c518dbcefc0547568e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _rockPrefab: {fileID: 114161613093201560, guid: b8f58ede84c2846d199b71bacef0a6ec,
-    type: 3}
-  _scissorsPrefab: {fileID: 114697591523789378, guid: 5a065bd612e194dc49b7ef696e062dfa,
-    type: 3}
-  _paperPrefab: {fileID: 114230149082792798, guid: 84585724a734f424a93610c9ccb17237,
-    type: 3}
-  _titanPrefab: {fileID: 114230149082792798, guid: 8a324bc9c462b47b6b7f5a8644ac15f3,
-    type: 3}
-  _towerPrefab: {fileID: 114230149082792798, guid: cd7ded354e44c4d7c9151941e321e7c7,
-    type: 3}
-  _minePrefab: {fileID: 114230149082792798, guid: eb9c3d5bba4674e40863eace9229d88f,
-    type: 3}
+  _prefab: {fileID: 253523346955948608, guid: 38b6dfd935c7c4a73be89695147495ef, type: 3}
 --- !u!1 &731312008
 GameObject:
   m_ObjectHideFlags: 0
@@ -2156,7 +2145,7 @@ SpriteRenderer:
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: -696963463
-  m_SortingLayer: 0
+  m_SortingLayer: 1
   m_SortingOrder: 0
   m_Sprite: {fileID: 21300000, guid: 963f838393f094b339cc7e811010371b, type: 3}
   m_Color: {r: 1, g: 0, b: 0.020689487, a: 0.053}
@@ -2361,7 +2350,7 @@ SpriteRenderer:
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: -531200073
-  m_SortingLayer: 0
+  m_SortingLayer: 2
   m_SortingOrder: 0
   m_Sprite: {fileID: 21300000, guid: 963f838393f094b339cc7e811010371b, type: 3}
   m_Color: {r: 0, g: 0.42068958, b: 1, a: 1}
@@ -2916,7 +2905,7 @@ SpriteRenderer:
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: -696963463
-  m_SortingLayer: 0
+  m_SortingLayer: 1
   m_SortingOrder: 0
   m_Sprite: {fileID: 21300000, guid: 963f838393f094b339cc7e811010371b, type: 3}
   m_Color: {r: 0, g: 0.42068958, b: 1, a: 0.053}

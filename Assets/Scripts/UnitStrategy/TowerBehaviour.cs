@@ -9,7 +9,7 @@ namespace Strategy {
 
 		public override void Behave() {
 			if (_unit.NearEnemies.Any())
-				_unit.NearEnemies.ForEach(x => x.Speed = 0.5f);
+				_unit.NearEnemies.ForEach(x => x.UnitFlyweight.Speed = 0.5f);
 		}
 	}
 }
