@@ -1,10 +1,8 @@
-﻿using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 using UI;
 using GameEntitties;
 using NPCInput;
 using Factory;
-using FlyWeight;
 
 namespace GameCore {
 	public class GameController : MonoBehaviour {
@@ -20,11 +18,8 @@ namespace GameCore {
 		[SerializeField] private Base _blueBase;
 		[SerializeField] private Transform _redArea;
 		[SerializeField] private Transform _blueArea;
-		[SerializeField] public Dictionary<Power, int> Costs = new Dictionary<Power, int>();
 
 		#endregion
-
-
 
 		private bool _gameRunning;
 		private Team _redTeam;
@@ -69,7 +64,7 @@ namespace GameCore {
 
 		public void PlayerSpawn(Power power, Vector2 position) {
 			UnitFactory.Instance.CreateUnit(power, _blueTeam, position);
-			_blueTeam.Energy -= Costs[power];
+			_blueTeam.Energy -= GetCost(power);
 
 		}
 
@@ -78,7 +73,15 @@ namespace GameCore {
 		}
 
 		public bool IsEnergyAvailable(Power power, float energy) {
-			return Costs.ContainsKey(power) && energy - Costs[power] >= 0;
+			return energy - GetCost(power) >= 0;
+		}
+
+		public int GetCost(Power power) {
+			var unit = UnitFactory.Instance.GetFlytWeight(power);
+			if (unit == null)
+				return Globals.UNBUYEBLE_COST;
+
+			return unit.Cost;
 		}
 	}
 }

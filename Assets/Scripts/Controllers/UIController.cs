@@ -39,12 +39,12 @@ namespace UI {
 		}
 
 		private void InitCosts() {
-			_titanCost.text = GameController.Instance.Costs[Power.titan].ToString();
-			_rockCost.text = GameController.Instance.Costs[Power.rock].ToString();
-			_scissorsCost.text = GameController.Instance.Costs[Power.scissors].ToString();
-			_paperCost.text = GameController.Instance.Costs[Power.paper].ToString();
-			_towerCost.text = GameController.Instance.Costs[Power.tower].ToString();
-			_mineCost.text = GameController.Instance.Costs[Power.mine].ToString();
+			_titanCost.text = GameController.Instance.GetCost(Power.titan).ToString();
+			_rockCost.text = GameController.Instance.GetCost(Power.rock).ToString();
+			_scissorsCost.text = GameController.Instance.GetCost(Power.scissors).ToString();
+			_paperCost.text = GameController.Instance.GetCost(Power.paper).ToString();
+			_towerCost.text = GameController.Instance.GetCost(Power.tower).ToString();
+			_mineCost.text = GameController.Instance.GetCost(Power.mine).ToString();
 		}
 
 		public void GameOver(TeamColor team) {

@@ -31,7 +31,7 @@ namespace NPCInput {
 			if (!GameController.Instance.IsEnergyAvailable(_currentRedUnit, _team.Energy))
 				return;
 
-			_team.Energy -= GameController.Instance.Costs[_currentRedUnit];
+			_team.Energy -= GameController.Instance.GetCost(_currentRedUnit);
 			var position = GetRandomPosition(_team.AreaPosition, _team.HalfScale);
 			UnitFactory.Instance.CreateUnit(_currentRedUnit, _team, position);
 			_currentRedUnit = Power.none;

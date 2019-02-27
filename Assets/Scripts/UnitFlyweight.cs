@@ -1,11 +1,14 @@
 ﻿using UnityEngine;
 
 namespace FlyWeight {
-	
+
+	[System.Serializable]
 	public class UnitFlyweight {
-		public Power Power { get; set; }
-		public Color Color { get; set; }
-		public float Speed { get; set; }
-		public Sprite Sprite { get; set; }
+		public Power Power;
+		public Sprite Sprite;
+		public Color Color;
+		public int Cost;
+		public float Speed;
+		public float Scale;
 	}
 }
