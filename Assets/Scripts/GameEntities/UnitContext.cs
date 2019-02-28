@@ -9,32 +9,26 @@ namespace GameEntitties {
 		public Team Team { get; set; }public int Lives;
 		public List<UnitContext> NearEnemies = new List<UnitContext>();
 		public IUnitBehaviour UnitBehaviour { get; set; }
-		private SpriteRenderer _spriteRenderer;
-
+        [SerializeField] private SpriteRenderer _unitColor;
+		[SerializeField] private SpriteRenderer _icon;
 
 		private UnitFlyweight _unitFlyweight;
 
 		public UnitFlyweight UnitFlyweight {
 			
-			get {
-				return _unitFlyweight;
-			}
+			get { return _unitFlyweight; }
 
 			set {
 				_unitFlyweight = value;
-				_spriteRenderer.sprite = _unitFlyweight.Sprite;
-				_spriteRenderer.color = _unitFlyweight.Color;
+				_icon.sprite = _unitFlyweight.Sprite;
+				_unitColor.color = _unitFlyweight.Color;
+                transform.localScale = new Vector2(_unitFlyweight.Scale, _unitFlyweight.Scale);
 			}
 		}
 
-
-
-		private void Awake() {
-			_spriteRenderer = GetComponent<SpriteRenderer>();
-		}
-
 		void FixedUpdate() {
-			UnitBehaviour.Behave();
+            if (UnitBehaviour != null)
+                UnitBehaviour.Behave();
 		}
 
 		private void OnCollisionEnter2D(Collision2D other) {
