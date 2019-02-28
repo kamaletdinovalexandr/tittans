@@ -19,14 +19,21 @@ namespace GameEntitties {
 			get { return _unitFlyweight; }
 
 			set {
-				_unitFlyweight = value;
-				_icon.sprite = _unitFlyweight.Sprite;
-				_unitColor.color = _unitFlyweight.Color;
-                transform.localScale = new Vector2(_unitFlyweight.Scale, _unitFlyweight.Scale);
-			}
-		}
+                _unitFlyweight = value;
+                Init();
+            }
+        }
 
-		void FixedUpdate() {
+        private void Init() {
+            _icon.sprite = _unitFlyweight.Sprite;
+            var color = _unitFlyweight.Color;
+            color.a = 1f;
+            _unitColor.color = color;
+            transform.localScale = new Vector2(_unitFlyweight.Scale, _unitFlyweight.Scale);
+            SetTriggerCollider(_unitFlyweight.TriggerColliderRadius);
+        }
+
+        void FixedUpdate() {
             if (UnitBehaviour != null)
                 UnitBehaviour.Behave();
 		}
@@ -80,5 +87,18 @@ namespace GameEntitties {
 				Destroy(gameObject);
 			}
 		}
+
+        public void SetTriggerCollider(float radius) {
+            var triggerColliders = GetComponents<CircleCollider2D>();
+            if (triggerColliders == null)
+                return;
+            
+            foreach (var coll in triggerColliders) {
+                if (coll.isTrigger) {
+                    coll.radius = radius;
+                    return;
+                }
+            }
+        }
 	}
 }

@@ -10,5 +10,7 @@ namespace FlyWeight {
 		public int Cost;
 		public float Speed;
 		public float Scale;
+        public float TriggerColliderRadius;
+        public int StartLives;
 	}
 }

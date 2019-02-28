@@ -25,6 +25,7 @@ namespace Factory {
 
 		public void CreateUnit(Power power, Team team, Vector2 spawnPosition) {
 			UnitContext unit = Instantiate(_prefab, spawnPosition, Quaternion.identity);
+            unit.name = power.ToString();
 			var flyweigh = GetFlytWeight(power);
 			if (flyweigh == null) {
 				throw new System.Exception("Try spawn unit of unknown type!!!");
@@ -33,6 +34,7 @@ namespace Factory {
 			unit.Team = team;
 			unit.UnitFlyweight = flyweigh;
 			unit.UnitBehaviour = GetUnitBehaviour(unit);
+            unit.Lives = flyweigh.StartLives;
 		}
 
 		public UnitFlyweight GetFlytWeight(Power power) {
