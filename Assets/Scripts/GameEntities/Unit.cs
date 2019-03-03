@@ -30,46 +30,46 @@ namespace GameEntitties {
             _icon.sprite = _unitSetup.Sprite;
 			_unitColor.color = Team.TeamColor == TeamColor.blue ? Color.blue : Color.red;
             transform.localScale = new Vector2(_unitSetup.Scale, _unitSetup.Scale);
-            SetTriggerCollider(_unitSetup.TriggerColliderRadius);
-			Speed = _unitSetup.DefaultSpeed;
-        }
+            Speed = _unitSetup.DefaultSpeed;
+			InitTriggerCollider();
+		}
 
-        void Update() {
-			Vector2 target = Team.EnemyBasePosition;
-			var scissors = NearEnemies.Where(u => u != null && u.UnitSetup.Power == Power.scissors);
+		public void InitTriggerCollider() {
+			var triggerColliders = GetComponents<CircleCollider2D>();
+			if (triggerColliders == null)
+				return;
 
+			foreach (var coll in triggerColliders) {
+				if (coll.isTrigger) {
+					coll.radius = _unitSetup.TriggerColliderRadius;
+					return;
+				}
+			}
+		}
+
+		#region Monobehaviour
+		void Update() {
 			switch (UnitSetup.Power) {
 				case Power.mine:
-				if (NearEnemies.Any()) {
-					var enemy = NearEnemies.FirstOrDefault(u => u != null && u.UnitSetup.Power != Power.tower);
-					if (enemy == null) { 
-						Speed = _unitSetup.DefaultSpeed;
-						return;
-					}
-
-					Speed = 2 * enemy.Speed;
-					target = enemy.transform.position;
-				}
+				DetectEnemyAndAttack();
 				break;
 
 				case Power.paper:
-				target = scissors.Any() ? target * -1 : target;
+				MoveBackwardIfScissors();
 				break;
 
 				case Power.rock:
-				if (scissors.Any()) {
-					//var scissor = scissors.FirstOrDefault(u => !(u == null));
-					//if (scissor != null)
-					target = scissors.First().transform.position;
-				}
+				AttackScissors();
 				break;
 
 				case Power.tower:
-				NearEnemies.ForEach(x => x.Speed = 0.5f);
-				Speed = _unitSetup.DefaultSpeed;
+				SlowDawnNearestEnemy();
+				break;
+
+				default:
+				AttackEnemyBase();
 				break;
 			}
-			transform.position = Vector2.MoveTowards(transform.position, target, Speed * Time.deltaTime);
 		}
 
 		private void OnCollisionEnter2D(Collision2D other) {
@@ -108,6 +108,52 @@ namespace GameEntitties {
 				NearEnemies.Remove(unit);
 			}
 		}
+		#endregion
+
+		#region UnitBehaviours
+		private void DetectEnemyAndAttack() {
+			var enemies = NearEnemies.Where(u => u != null && (u.UnitSetup.Power != Power.tower || u.UnitSetup.Power != Power.mine));
+			if (!enemies.Any()) {
+				Speed = _unitSetup.DefaultSpeed;
+				return;
+			}
+
+			var enemy = enemies.First();
+			Speed = 2 * enemy.Speed;
+			transform.position = Vector2.MoveTowards(transform.position, enemy.transform.position, Speed * Time.deltaTime);
+		}
+
+		private void MoveBackwardIfScissors() {
+			var scissors = NearEnemies.Where(u => u != null && (u.UnitSetup.Power == Power.scissors));
+			var target = Team.EnemyBasePosition;
+			if (scissors.Any())
+				target = target * -1;
+
+			transform.position = Vector2.MoveTowards(transform.position, target, Speed * Time.deltaTime);
+		}
+
+		private void AttackScissors() {
+			var scissors = NearEnemies.Where(u => u != null && (u.UnitSetup.Power == Power.scissors));
+			var target = Team.EnemyBasePosition;
+			if (scissors.Any())
+				target = scissors.First().transform.position;
+
+			transform.position = Vector2.MoveTowards(transform.position, target, Speed * Time.deltaTime);
+		}
+
+		private void SlowDawnNearestEnemy() {
+			var enemies = NearEnemies.Where(u => u != null && (u.UnitSetup.Power != Power.tower || u.UnitSetup.Power != Power.mine));
+			if (!enemies.Any()) {
+				return;
+			}
+
+			enemies.ToList().ForEach(u => u.Speed = 0.5f);
+		}
+
+		private void AttackEnemyBase() {
+			transform.position = Vector2.MoveTowards(transform.position, Team.EnemyBasePosition, Speed * Time.deltaTime);
+		}
+		#endregion
 
 		private bool IsPowerfullThen(Power otherPower) {
 			return UnitSetup.Power == Power.mine && otherPower != Power.mine
@@ -126,18 +172,5 @@ namespace GameEntitties {
 				Destroy(gameObject);
 			}
 		}
-
-        public void SetTriggerCollider(float radius) {
-            var triggerColliders = GetComponents<CircleCollider2D>();
-            if (triggerColliders == null)
-                return;
-            
-            foreach (var coll in triggerColliders) {
-                if (coll.isTrigger) {
-                    coll.radius = radius;
-                    return;
-                }
-            }
-        }
 	}
 }
