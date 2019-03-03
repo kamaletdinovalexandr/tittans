@@ -64,24 +64,16 @@ namespace GameCore {
 
 		public void PlayerSpawn(Power power, Vector2 position) {
 			UnitFactory.Instance.CreateUnit(power, _blueTeam, position);
-			_blueTeam.Energy -= GetCost(power);
+			_blueTeam.Energy -= UnitFactory.Instance.GetUnitCost(power);
 
 		}
 
 		public bool IsBlueSpawnAvailable(Power power, Vector3 position) {
-			return IsEnergyAvailable(power, _blueTeam.Energy) && _blueTeam.IsInsideArea(position);
+			return IsBlueEnergyAvailable(power) && _blueTeam.IsInsideArea(position);
 		}
 
-		public bool IsEnergyAvailable(Power power, float energy) {
-			return energy - GetCost(power) >= 0;
-		}
-
-		public int GetCost(Power power) {
-			var unit = UnitFactory.Instance.GetFlytWeight(power);
-			if (unit == null)
-				return Globals.UNBUYEBLE_COST;
-
-			return unit.Cost;
+		public bool IsBlueEnergyAvailable(Power power) {
+			return _blueTeam.IsEnergyAvailable(power);
 		}
 	}
 }

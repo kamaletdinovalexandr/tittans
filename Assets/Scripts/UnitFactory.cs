@@ -1,7 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using Strategy;
 using GameEntitties;
 using FlyWeight;
 
@@ -14,8 +13,8 @@ namespace Factory {
 
 		#region EditorSetups
 
-		[SerializeField] private UnitContext _prefab;
-		[SerializeField] private List<UnitFlyweight> Flyweights = new List<UnitFlyweight>();
+		[SerializeField] private Unit _prefab;
+		[SerializeField] private List<UnitSetup> UnitSetups = new List<UnitSetup>();
 
 		#endregion
 
@@ -24,21 +23,20 @@ namespace Factory {
 		}
 
 		public void CreateUnit(Power power, Team team, Vector2 spawnPosition) {
-			UnitContext unit = Instantiate(_prefab, spawnPosition, Quaternion.identity);
+			Unit unit = Instantiate(_prefab, spawnPosition, Quaternion.identity);
             unit.name = power.ToString();
-			var flyweigh = GetFlytWeight(power);
-			if (flyweigh == null) {
+			var unitSetup = GetSetupForUnit(power);
+			if (unitSetup == null) {
 				throw new System.Exception("Try spawn unit of unknown type!!!");
 			}
 
 			unit.Team = team;
-			unit.UnitFlyweight = flyweigh;
-			unit.UnitBehaviour = GetUnitBehaviour(unit);
-            unit.Lives = flyweigh.StartLives;
+			unit.UnitSetup = unitSetup;
+            unit.Lives = unitSetup.StartLives;
 		}
 
-		public UnitFlyweight GetFlytWeight(Power power) {
-			foreach (var flyweight in Flyweights) {
+		public UnitSetup GetSetupForUnit(Power power) {
+			foreach (var flyweight in UnitSetups) {
 				if (flyweight.Power == power) {
 					return flyweight;
 				}
@@ -47,26 +45,9 @@ namespace Factory {
 			return null;
 		}
 
-		public IUnitBehaviour GetUnitBehaviour(UnitContext unit) {
-			switch (unit.UnitFlyweight.Power) {
-				case Power.mine: 
-					return new MineBehaviour(unit);
-
-				case Power.titan:
-					return new BaseUnitBehaviour(unit);
-
-				case Power.tower:
-					return new TowerBehaviour(unit);
-
-				case Power.rock:
-					return new RockBehaviour(unit);
-
-				case Power.paper:
-					return new PaperBehaviour(unit);
-
-				default:
-					return new BaseUnitBehaviour(unit);
-			}
+		public int GetUnitCost(Power power) {
+			var setup = GetSetupForUnit(power);
+			return setup == null ? Globals.UNBUYEBLE_COST : setup.Cost;
 		}
 	}
 }

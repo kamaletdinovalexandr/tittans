@@ -1,4 +1,5 @@
 using UnityEngine;
+using Factory;
 
 namespace GameEntitties {
 	public class Team {
@@ -29,6 +30,10 @@ namespace GameEntitties {
 				   && position.x <= AreaPosition.x + HalfScale.x
 				   && position.y >= AreaPosition.y - HalfScale.y
 				   && position.y <= AreaPosition.y + HalfScale.y;
+		}
+
+		public bool IsEnergyAvailable(Power power) {
+			return Energy - UnitFactory.Instance.GetUnitCost(power) >= 0;
 		}
 	}
 }
