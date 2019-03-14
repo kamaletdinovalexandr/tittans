@@ -30,9 +30,7 @@ namespace Factory {
 				throw new System.Exception("Try spawn unit of unknown type!!!");
 			}
 
-			unit.Team = team;
-			unit.UnitSetup = unitSetup;
-            unit.Lives = unitSetup.StartLives;
+			unit.Init(team, unitSetup);
 		}
 
 		public UnitSetup GetSetupForUnit(Power power) {

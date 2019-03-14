@@ -6,42 +6,45 @@ using FlyWeight;
 namespace GameEntitties {
 	public class Unit : MonoBehaviour {
 
-		public Team Team { get; set; }public int Lives;
+        public Team Team;
+        public Power Power;
+        public int Lives;
+        public float Speed;
+        public float CurrentSpeed;
+        public bool IsAlive = true;
+
 		public List<Unit> NearEnemies = new List<Unit>();
 
         [SerializeField] private SpriteRenderer _unitColor;
 		[SerializeField] private SpriteRenderer _icon;
-
-		public float Speed { get; private set; }
-
-		private UnitSetup _unitSetup;
-
-		public UnitSetup UnitSetup {
-			
-			get { return _unitSetup; }
-
-			set {
-                _unitSetup = value;
-				Init();
-            }
+		
+        public void Init(Team team, UnitSetup setup) {
+            Team = team;
+            Speed = setup.DefaultSpeed;
+            CurrentSpeed = Speed;
+            Lives = setup.StartLives;
+            InitGameObject(setup);
         }
 
-        private void Init() {
-            _icon.sprite = _unitSetup.Sprite;
-			_unitColor.color = Team.TeamColor == TeamColor.blue ? Color.blue : Color.red;
-            transform.localScale = new Vector2(_unitSetup.Scale, _unitSetup.Scale);
-            Speed = _unitSetup.DefaultSpeed;
-			InitTriggerCollider();
-		}
+        private void InitGameObject(UnitSetup setup) {
+            _icon.sprite = setup.Sprite;
+            _unitColor.color = GetCurrentTeamColor();
+            transform.localScale = new Vector2(setup.Scale, setup.Scale);
+            SetTriggerRadius(setup.TriggerColliderRadius);
+        }
 
-		public void InitTriggerCollider() {
+        private Color GetCurrentTeamColor() {
+            return Team.TeamColor == TeamColor.blue ? Color.blue : Color.red;
+        }
+
+        public void SetTriggerRadius(float radius) {
 			var triggerColliders = GetComponents<CircleCollider2D>();
 			if (triggerColliders == null)
 				return;
 
 			foreach (var coll in triggerColliders) {
 				if (coll.isTrigger) {
-					coll.radius = _unitSetup.TriggerColliderRadius;
+					coll.radius = radius;
 					return;
 				}
 			}
@@ -49,7 +52,12 @@ namespace GameEntitties {
 
 		#region Monobehaviour
 		void Update() {
-			switch (UnitSetup.Power) {
+            if (!IsAlive) {
+                Destroy(gameObject);
+                return;
+            }
+
+			switch (Power) {
 				case Power.mine:
 				DetectEnemyAndAttack();
 				break;
@@ -63,7 +71,7 @@ namespace GameEntitties {
 				break;
 
 				case Power.tower:
-				SlowDawnNearestEnemy();
+				SlowDownNearestEnemy();
 				break;
 
 				default:
@@ -73,27 +81,30 @@ namespace GameEntitties {
 		}
 
 		private void OnCollisionEnter2D(Collision2D other) {
-			var otherUnit = other.gameObject.GetComponent<Unit>();
-			if (otherUnit == null || Team == otherUnit.Team)
-				return;
+            var otherUnit = other.gameObject.GetComponent<Unit>();
+            if (otherUnit == null || Team == otherUnit.Team)
+                return;
 
-			if (IsPowerfullThen(otherUnit.UnitSetup.Power)) {
-				Debug.Log(UnitSetup.Power + " is damage unit " + otherUnit.UnitSetup.Power);
-				otherUnit.TakeDamage();
-				if (otherUnit.Lives <= 0)
-					RemoveNearEnemy(otherUnit);
-			}
+            TryGiveDamage(otherUnit);
+        }
 
-			if (UnitSetup.Power == Power.mine || UnitSetup.Power == Power.tower)
-				TakeDamage();
-		}
+        private void TryGiveDamage(Unit enemy) {
+            if (CanGiveDamage(enemy.Power)) {
+                enemy.TakeDamage();
+                if (enemy.Lives <= 0)
+                    RemoveNearEnemy(enemy);
+            }
 
-		private void OnTriggerEnter2D(Collider2D other) {
+            if (Power == Power.mine || Power == Power.tower)
+                TakeDamage();
+        }
+
+        private void OnTriggerEnter2D(Collider2D other) {
 			var unit = other.gameObject.GetComponent<Unit>();
 			if (unit == null || Team == unit.Team)
 				return;
 
-			Debug.Log(UnitSetup.Power + ": enemy unit is entered trigger area: " + unit.UnitSetup.Power);
+			Debug.Log(Power + ": enemy unit is entered trigger area: " + unit.Power);
 			if (!NearEnemies.Contains(unit))
 				NearEnemies.Add(unit);
 		}
@@ -112,63 +123,64 @@ namespace GameEntitties {
 
 		#region UnitBehaviours
 		private void DetectEnemyAndAttack() {
-			var enemies = NearEnemies.Where(u => u != null && (u.UnitSetup.Power != Power.tower || u.UnitSetup.Power != Power.mine));
+			var enemies = NearEnemies.Where(u => u != null && (u.Power != Power.tower || u.Power != Power.mine));
 			if (!enemies.Any()) {
-				Speed = _unitSetup.DefaultSpeed;
+				CurrentSpeed = Speed;
 				return;
 			}
 
 			var enemy = enemies.First();
-			Speed = 2 * enemy.Speed;
+            CurrentSpeed = 2 * enemy.CurrentSpeed;
 			transform.position = Vector2.MoveTowards(transform.position, enemy.transform.position, Speed * Time.deltaTime);
 		}
 
 		private void MoveBackwardIfScissors() {
-			var scissors = NearEnemies.Where(u => u != null && (u.UnitSetup.Power == Power.scissors));
+			var scissors = NearEnemies.Where(u => u != null && (u.Power == Power.scissors));
 			var target = Team.EnemyBasePosition;
 			if (scissors.Any())
 				target = target * -1;
 
-			transform.position = Vector2.MoveTowards(transform.position, target, Speed * Time.deltaTime);
+            transform.position = Vector2.MoveTowards(transform.position, target, CurrentSpeed * Time.deltaTime);
 		}
 
 		private void AttackScissors() {
-			var scissors = NearEnemies.Where(u => u != null && (u.UnitSetup.Power == Power.scissors));
+			var scissors = NearEnemies.Where(u => u != null && (u.Power == Power.scissors));
 			var target = Team.EnemyBasePosition;
 			if (scissors.Any())
 				target = scissors.First().transform.position;
 
-			transform.position = Vector2.MoveTowards(transform.position, target, Speed * Time.deltaTime);
+            transform.position = Vector2.MoveTowards(transform.position, target, CurrentSpeed * Time.deltaTime);
 		}
 
-		private void SlowDawnNearestEnemy() {
-			var enemies = NearEnemies.Where(u => u != null && (u.UnitSetup.Power != Power.tower || u.UnitSetup.Power != Power.mine));
+        private void SlowDownNearestEnemy() {
+			var enemies = NearEnemies.Where(u => u != null && (u.Power != Power.tower || u.Power != Power.mine));
 			if (!enemies.Any()) {
 				return;
 			}
 
-			enemies.ToList().ForEach(u => u.Speed = 0.5f);
+            enemies.ToList().ForEach(u => u.CurrentSpeed = 0.5f);
 		}
 
 		private void AttackEnemyBase() {
-			transform.position = Vector2.MoveTowards(transform.position, Team.EnemyBasePosition, Speed * Time.deltaTime);
+            transform.position = Vector2.MoveTowards(transform.position, Team.EnemyBasePosition, CurrentSpeed * Time.deltaTime);
 		}
 		#endregion
 
-		private bool IsPowerfullThen(Power otherPower) {
-			return UnitSetup.Power == Power.mine && otherPower != Power.mine
-                || UnitSetup.Power == Power.titan && otherPower != Power.titan
-                || UnitSetup.Power == Power.rock && otherPower == Power.scissors
-                || UnitSetup.Power == Power.scissors && otherPower == Power.paper
-                || UnitSetup.Power == Power.paper && otherPower == Power.rock
-                || UnitSetup.Power == Power.tower;
+		private bool CanGiveDamage(Power otherPower) {
+			return Power == Power.mine && otherPower != Power.mine
+                || Power == Power.titan && otherPower != Power.titan
+                || Power == Power.rock && otherPower == Power.scissors
+                || Power == Power.scissors && otherPower == Power.paper
+                || Power == Power.paper && otherPower == Power.rock
+                || Power == Power.tower;
 		}
 
 		public void TakeDamage() {
 			Lives--;
-			Debug.Log(UnitSetup.Power + " is damaged: Lives:" + Lives);
+            Debug.Log(Power + " is damaged");
 			if (Lives <= 0) {
-				Debug.Log(UnitSetup.Power + " no lives left");
+				Debug.Log(Power + " no lives left");
+                IsAlive = false;
 				Destroy(gameObject);
 			}
 		}
