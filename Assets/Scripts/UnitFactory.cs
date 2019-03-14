@@ -11,12 +11,10 @@ namespace Factory {
 
 		public static UnitFactory Instance { get { return _instance; } }
 
-		#region EditorSetups
-
+#region EditorSetups
 		[SerializeField] private Unit _prefab;
 		[SerializeField] private List<UnitSetup> UnitSetups = new List<UnitSetup>();
-
-		#endregion
+#endregion
 
 		private void Start() {
 			_instance = this;
@@ -24,7 +22,6 @@ namespace Factory {
 
 		public void CreateUnit(Power power, Team team, Vector2 spawnPosition) {
 			Unit unit = Instantiate(_prefab, spawnPosition, Quaternion.identity);
-            unit.name = power.ToString();
 			var unitSetup = GetSetupForUnit(power);
 			if (unitSetup == null) {
 				throw new System.Exception("Try spawn unit of unknown type!!!");

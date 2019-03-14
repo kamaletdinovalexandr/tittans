@@ -2,14 +2,14 @@
 using System.Collections.Generic;
 using System.Linq;
 using FlyWeight;
+using Factory;
 
 namespace GameEntitties {
 	public class Unit : MonoBehaviour {
 
         public Team Team;
-        public Power Power;
+        public Power SelfPower;
         public int Lives;
-        public float Speed;
         public float CurrentSpeed;
         public bool IsAlive = true;
 
@@ -17,16 +17,18 @@ namespace GameEntitties {
 
         [SerializeField] private SpriteRenderer _unitColor;
 		[SerializeField] private SpriteRenderer _icon;
-		
+
+#region Init		
         public void Init(Team team, UnitSetup setup) {
+            SelfPower = setup.Power;
             Team = team;
-            Speed = setup.DefaultSpeed;
-            CurrentSpeed = Speed;
+            CurrentSpeed = setup.DefaultSpeed;
             Lives = setup.StartLives;
             InitGameObject(setup);
         }
 
         private void InitGameObject(UnitSetup setup) {
+            gameObject.name = setup.Power.ToString();
             _icon.sprite = setup.Sprite;
             _unitColor.color = GetCurrentTeamColor();
             transform.localScale = new Vector2(setup.Scale, setup.Scale);
@@ -49,15 +51,15 @@ namespace GameEntitties {
 				}
 			}
 		}
+#endregion
 
-		#region Monobehaviour
-		void Update() {
+        void Update() {
             if (!IsAlive) {
                 Destroy(gameObject);
                 return;
             }
 
-			switch (Power) {
+			switch (SelfPower) {
 				case Power.mine:
 				DetectEnemyAndAttack();
 				break;
@@ -80,62 +82,48 @@ namespace GameEntitties {
 			}
 		}
 
-		private void OnCollisionEnter2D(Collision2D other) {
+#region Collision
+        private void OnCollisionEnter2D(Collision2D other) {
             var otherUnit = other.gameObject.GetComponent<Unit>();
-            if (otherUnit == null || Team == otherUnit.Team)
+            if (IsNullOrFriendly(otherUnit))
                 return;
 
             TryGiveDamage(otherUnit);
         }
 
-        private void TryGiveDamage(Unit enemy) {
-            if (CanGiveDamage(enemy.Power)) {
-                enemy.TakeDamage();
-                if (enemy.Lives <= 0)
-                    RemoveNearEnemy(enemy);
-            }
-
-            if (Power == Power.mine || Power == Power.tower)
-                TakeDamage();
-        }
-
         private void OnTriggerEnter2D(Collider2D other) {
-			var unit = other.gameObject.GetComponent<Unit>();
-			if (unit == null || Team == unit.Team)
-				return;
+			var otherUnit = other.gameObject.GetComponent<Unit>();
+            if (IsNullOrFriendly(otherUnit))
+                return;
 
-			Debug.Log(Power + ": enemy unit is entered trigger area: " + unit.Power);
-			if (!NearEnemies.Contains(unit))
-				NearEnemies.Add(unit);
+            Debug.Log(SelfPower + ": enemy unit is entered trigger area: " + otherUnit.SelfPower);
+            if (!NearEnemies.Contains(otherUnit))
+                NearEnemies.Add(otherUnit);
 		}
 
 		private void OnTriggerExit2D(Collider2D other) {
 			var unit = other.gameObject.GetComponent<Unit>();
 			RemoveNearEnemy(unit);
 		}
+#endregion
 
-		private void RemoveNearEnemy(Unit unit) {
-			if (NearEnemies.Contains(unit)) {
-				NearEnemies.Remove(unit);
-			}
-		}
-		#endregion
+		
 
-		#region UnitBehaviours
+#region UnitBehaviours
 		private void DetectEnemyAndAttack() {
-			var enemies = NearEnemies.Where(u => u != null && (u.Power != Power.tower || u.Power != Power.mine));
+			var enemies = NearEnemies.Where(u => u != null && (u.SelfPower != Power.tower || u.SelfPower != Power.mine));
 			if (!enemies.Any()) {
-				CurrentSpeed = Speed;
+                CurrentSpeed = UnitFactory.Instance.GetSetupForUnit(SelfPower).DefaultSpeed;
 				return;
 			}
 
 			var enemy = enemies.First();
             CurrentSpeed = 2 * enemy.CurrentSpeed;
-			transform.position = Vector2.MoveTowards(transform.position, enemy.transform.position, Speed * Time.deltaTime);
+            transform.position = Vector2.MoveTowards(transform.position, enemy.transform.position, CurrentSpeed * Time.deltaTime);
 		}
 
 		private void MoveBackwardIfScissors() {
-			var scissors = NearEnemies.Where(u => u != null && (u.Power == Power.scissors));
+			var scissors = NearEnemies.Where(u => u != null && (u.SelfPower == Power.scissors));
 			var target = Team.EnemyBasePosition;
 			if (scissors.Any())
 				target = target * -1;
@@ -144,7 +132,7 @@ namespace GameEntitties {
 		}
 
 		private void AttackScissors() {
-			var scissors = NearEnemies.Where(u => u != null && (u.Power == Power.scissors));
+			var scissors = NearEnemies.Where(u => u != null && (u.SelfPower == Power.scissors));
 			var target = Team.EnemyBasePosition;
 			if (scissors.Any())
 				target = scissors.First().transform.position;
@@ -153,7 +141,7 @@ namespace GameEntitties {
 		}
 
         private void SlowDownNearestEnemy() {
-			var enemies = NearEnemies.Where(u => u != null && (u.Power != Power.tower || u.Power != Power.mine));
+			var enemies = NearEnemies.Where(u => u != null && (u.SelfPower != Power.tower || u.SelfPower != Power.mine));
 			if (!enemies.Any()) {
 				return;
 			}
@@ -164,25 +152,43 @@ namespace GameEntitties {
 		private void AttackEnemyBase() {
             transform.position = Vector2.MoveTowards(transform.position, Team.EnemyBasePosition, CurrentSpeed * Time.deltaTime);
 		}
-		#endregion
+#endregion
 
 		private bool CanGiveDamage(Power otherPower) {
-			return Power == Power.mine && otherPower != Power.mine
-                || Power == Power.titan && otherPower != Power.titan
-                || Power == Power.rock && otherPower == Power.scissors
-                || Power == Power.scissors && otherPower == Power.paper
-                || Power == Power.paper && otherPower == Power.rock
-                || Power == Power.tower;
+			return SelfPower == Power.mine && otherPower != Power.mine
+                || SelfPower == Power.titan && otherPower != Power.titan
+                || SelfPower == Power.rock && otherPower == Power.scissors
+                || SelfPower == Power.scissors && otherPower == Power.paper
+                || SelfPower == Power.paper && otherPower == Power.rock
+                || SelfPower == Power.tower;
 		}
 
 		public void TakeDamage() {
 			Lives--;
-            Debug.Log(Power + " is damaged");
+            Debug.Log(SelfPower + " is damaged");
 			if (Lives <= 0) {
-				Debug.Log(Power + " no lives left");
+				Debug.Log(SelfPower + " no lives left");
                 IsAlive = false;
-				Destroy(gameObject);
 			}
 		}
+
+        private void TryGiveDamage(Unit enemy) {
+            if (CanGiveDamage(enemy.SelfPower)) {
+                enemy.TakeDamage();
+            }
+
+            if (SelfPower == Power.mine || SelfPower == Power.tower)
+                TakeDamage();
+        }
+
+        private void RemoveNearEnemy(Unit unit) {
+            if (NearEnemies.Contains(unit)) {
+                NearEnemies.Remove(unit);
+            }
+        }
+
+        private bool IsNullOrFriendly(Unit unit) {
+            return unit == null || Team == unit.Team;
+        }
 	}
 }

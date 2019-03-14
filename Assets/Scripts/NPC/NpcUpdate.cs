@@ -1,6 +1,5 @@
 using UnityEngine;
 using GameEntitties;
-using GameCore;
 using Factory;
 
 namespace NPCInput {

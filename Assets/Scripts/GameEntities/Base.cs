@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using GameCore;
 
 namespace GameEntitties {
 	public class Base : MonoBehaviour {
@@ -14,6 +15,9 @@ namespace GameEntitties {
 			BaseLives -= 1;
 			Debug.Log(CurrentTeam.ToString() + " base is destroyed unit " + otherUnit.Team.TeamColor);
 			Destroy(otherUnit.gameObject);
+
+            if (BaseLives <= 0)
+                GameController.Instance.GameOver(CurrentTeam);
 		}
-	}
+    }
 }

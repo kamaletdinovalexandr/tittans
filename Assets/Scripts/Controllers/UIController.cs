@@ -10,7 +10,6 @@ namespace UI {
 		private static UIController _instance;
 
 #region UnitySetups
-
 		public Text _titanCost;
 		public Image _titanBuyImage;
 		public Text _rockCost;
@@ -29,7 +28,6 @@ namespace UI {
 		public Text _redBaseLives;
 		public Text _blueBaseLives;
 		public Text _gameOver;
-
 #endregion
 
 		public static UIController Instance { get { return _instance; } }
@@ -52,7 +50,7 @@ namespace UI {
 			_mineCost.text = UnitFactory.Instance.GetUnitCost(Power.mine).ToString();
 		}
 
-		public void GameOver(TeamColor team) {
+		public void TeamWin(TeamColor team) {
 			_gameOver.text = team + Globals.WINS;
 		}
 
@@ -62,41 +60,23 @@ namespace UI {
 			_redTeamEnergyText.text = Globals.ENERGY + Mathf.RoundToInt(redEnergy);
 			_blueTeamEnergyText.text = Globals.ENERGY + Mathf.RoundToInt(blueEnergy);
 
-			UpdateStoreButtons(redLives, redEnergy, blueLives, blueEnergy);
+			UpdateStoreButtons();
 		}
 
-		private void UpdateStoreButtons(int redLives, float redEnergy, int blueLives, float blueEnergy) {
-			bool canBuy;
-			canBuy = GameController.Instance.IsBlueEnergyAvailable(Power.titan);
-			_titanBuyImage.color = canBuy
-				? SetAlpha(_titanBuyImage.color, 1f)
-				: SetAlpha(_titanBuyImage.color, 0.2f);
-
-			canBuy = GameController.Instance.IsBlueEnergyAvailable(Power.paper);
-			_paperBuyImage.color = canBuy
-				? SetAlpha(_paperBuyImage.color, 1f)
-				: SetAlpha(_paperBuyImage.color, 0.2f);
-
-			canBuy = GameController.Instance.IsBlueEnergyAvailable(Power.scissors);
-			_scissorsBuyImage.color = canBuy
-				? SetAlpha(_scissorsBuyImage.color, 1f)
-				: SetAlpha(_scissorsBuyImage.color, 0.2f);
-
-			canBuy = GameController.Instance.IsBlueEnergyAvailable(Power.rock);
-			_rockBuyImage.color = canBuy
-				? SetAlpha(_rockBuyImage.color, 1f)
-				: SetAlpha(_rockBuyImage.color, 0.2f);
-
-			canBuy = GameController.Instance.IsBlueEnergyAvailable(Power.tower);
-			_towerBuyImage.color = canBuy
-				? SetAlpha(_towerBuyImage.color, 1f)
-				: SetAlpha(_towerBuyImage.color, 0.2f);
-
-			canBuy = GameController.Instance.IsBlueEnergyAvailable(Power.mine);
-			_mineBuyImage.color = canBuy
-				? SetAlpha(_mineBuyImage.color, 1f)
-				: SetAlpha(_mineBuyImage.color, 0.2f);
+		private void UpdateStoreButtons() {
+            _titanBuyImage.color = GetColor(Power.titan, _titanBuyImage.color);
+            _paperBuyImage.color = GetColor(Power.paper, _paperBuyImage.color);
+            _scissorsBuyImage.color = GetColor(Power.scissors, _scissorsBuyImage.color);
+            _rockBuyImage.color = GetColor(Power.rock, _rockBuyImage.color);
+            _towerBuyImage.color = GetColor(Power.tower, _towerBuyImage.color);
+            _mineBuyImage.color = GetColor(Power.mine, _mineBuyImage.color);
 		}
+
+        private Color GetColor(Power power, Color color) {
+            return GameController.Instance.IsBlueEnergyAvailable(power)
+                ? SetAlpha(color, 1f)
+                : SetAlpha(color, 0.2f);
+        }
 
 		private Color SetAlpha(Color color, float alpha) {
 			Color newColor = color;

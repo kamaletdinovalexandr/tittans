@@ -12,14 +12,12 @@ namespace GameCore {
 			get { return _instance; }
 		}
 
-		#region EditorSetups
-
+#region EditorSetups
 		[SerializeField] private Base _redBase;
 		[SerializeField] private Base _blueBase;
 		[SerializeField] private Transform _redArea;
 		[SerializeField] private Transform _blueArea;
-
-		#endregion
+#endregion
 
 		private bool _gameRunning;
 		private Team _redTeam;
@@ -28,14 +26,13 @@ namespace GameCore {
 		void Awake() {
 			_instance = this;
 			Init();
-
-			_gameRunning = true;
 		}
 
 		private void Init() {
 			_redTeam = new Team(TeamColor.red, _blueBase.transform.position, _redArea.position, _redArea.localScale / 2f);
-			_redTeam.ActionBehaviour = new NpcUpdate(_redTeam);
 			_blueTeam = new Team(TeamColor.blue, _redBase.transform.position, _blueArea.position, _blueArea.localScale / 2f);
+            _redTeam.ActionBehaviour = new NpcUpdate(_redTeam);
+            _gameRunning = true;
 		}
 
 		void FixedUpdate() {
@@ -48,19 +45,17 @@ namespace GameCore {
 
 			UIController.Instance.UpdateUI(_redBase.BaseLives, _redTeam.Energy, _blueBase.BaseLives, _blueTeam.Energy);
 
-			if (_redBase.BaseLives <= 0) {
-				GameOver(_blueBase.CurrentTeam);
-			}
-			else {
-				if (_blueBase.BaseLives <= 0)
-					GameOver(_redBase.CurrentTeam);
-			}
 		}
 
-		private void GameOver(TeamColor team) {
-			UIController.Instance.GameOver(team);
+		public void GameOver(TeamColor team) {
+            var winTeam = GetOppositeTeamColor(team);
+			UIController.Instance.TeamWin(winTeam);
 			_gameRunning = false;
 		}
+
+        private TeamColor GetOppositeTeamColor(TeamColor team) {
+            return team == TeamColor.blue ? TeamColor.red : TeamColor.blue;
+        }
 
 		public void PlayerSpawn(Power power, Vector2 position) {
 			UnitFactory.Instance.CreateUnit(power, _blueTeam, position);
