@@ -12,7 +12,7 @@ namespace Factory {
 		public static UnitFactory Instance { get { return _instance; } }
 
 #region EditorSetups
-		[SerializeField] private Unit _prefab;
+		[SerializeField] private GameObject _prefab;
 		[SerializeField] private List<UnitSetup> UnitSetups = new List<UnitSetup>();
 #endregion
 
@@ -21,11 +21,32 @@ namespace Factory {
 		}
 
 		public void CreateUnit(Power power, Team team, Vector2 spawnPosition) {
-			Unit unit = Instantiate(_prefab, spawnPosition, Quaternion.identity);
+			var go = Instantiate(_prefab, spawnPosition, Quaternion.identity);
 			var unitSetup = GetSetupForUnit(power);
 			if (unitSetup == null) {
 				throw new System.Exception("Try spawn unit of unknown type!!!");
 			}
+            Unit unit = null;
+            switch(power) {
+                case Power.mine:
+                    unit = go.AddComponent<MineUnit>();
+                    break;
+                case Power.paper:
+                    unit = go.AddComponent<PaperUnit>();
+                    break;
+                case Power.rock:
+                    unit = go.AddComponent<RockUnit>();
+                    break;
+                case Power.scissors:
+                    unit = go.AddComponent<ScissorsUnit>();
+                    break;
+                case Power.titan:
+                    unit = go.AddComponent<TitanUnit>();
+                    break;
+                case Power.tower:
+                    unit = go.AddComponent<TowerUnit>();
+                    break;
+            }
 
 			unit.Init(team, unitSetup);
 		}

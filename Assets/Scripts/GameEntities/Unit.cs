@@ -5,7 +5,7 @@ using FlyWeight;
 using Factory;
 
 namespace GameEntitties {
-	public class Unit : MonoBehaviour {
+    public abstract class Unit : MonoBehaviour {
 
         public Team Team;
         public Power SelfPower;
@@ -13,10 +13,16 @@ namespace GameEntitties {
         public float CurrentSpeed;
         public bool IsAlive = true;
 
-		public List<Unit> NearEnemies = new List<Unit>();
+        public List<Unit> NearEnemies = new List<Unit>();
 
-        [SerializeField] private SpriteRenderer _unitColor;
-		[SerializeField] private SpriteRenderer _icon;
+        private SpriteRenderer _unitColor;
+        private SpriteRenderer _icon;
+
+        private void Awake() {
+            var sr = GetComponentsInChildren<SpriteRenderer>();
+            _unitColor = sr[0];
+            _icon = sr[1];
+        }
 
 #region Init		
         public void Init(Team team, UnitSetup setup) {
@@ -40,49 +46,30 @@ namespace GameEntitties {
         }
 
         public void SetTriggerRadius(float radius) {
-			var triggerColliders = GetComponents<CircleCollider2D>();
-			if (triggerColliders == null)
-				return;
+            var triggerColliders = GetComponents<CircleCollider2D>();
+            if (triggerColliders == null)
+                return;
 
-			foreach (var coll in triggerColliders) {
-				if (coll.isTrigger) {
-					coll.radius = radius;
-					return;
-				}
-			}
-		}
+            foreach (var coll in triggerColliders) {
+                if (coll.isTrigger) {
+                    coll.radius = radius;
+                    return;
+                }
+            }
+        }
+
 #endregion
 
+#region Monobeheviour
         void Update() {
             if (!IsAlive) {
                 Destroy(gameObject);
                 return;
             }
 
-			switch (SelfPower) {
-				case Power.mine:
-				DetectEnemyAndAttack();
-				break;
-
-				case Power.paper:
-				MoveBackwardIfScissors();
-				break;
-
-				case Power.rock:
-				AttackScissors();
-				break;
-
-				case Power.tower:
-				SlowDownNearestEnemy();
-				break;
-
-				default:
-				AttackEnemyBase();
-				break;
-			}
+            UnitMoveBehaviour();
 		}
 
-#region Collision
         private void OnCollisionEnter2D(Collision2D other) {
             var otherUnit = other.gameObject.GetComponent<Unit>();
             if (IsNullOrFriendly(otherUnit))
@@ -110,46 +97,22 @@ namespace GameEntitties {
 		
 
 #region UnitBehaviours
-		private void DetectEnemyAndAttack() {
-			var enemies = NearEnemies.Where(u => u != null && (u.SelfPower != Power.tower || u.SelfPower != Power.mine));
-			if (!enemies.Any()) {
-                CurrentSpeed = UnitFactory.Instance.GetSetupForUnit(SelfPower).DefaultSpeed;
-				return;
-			}
+        protected void UnitMoveBehaviour() {
+            if (IsEnemyFound()) {
+                EnemyFoundBehaviour();
+                return;
+            }
+               
+            AttackEnemyBase();
+        }
 
-			var enemy = enemies.First();
-            CurrentSpeed = 2 * enemy.CurrentSpeed;
-            transform.position = Vector2.MoveTowards(transform.position, enemy.transform.position, CurrentSpeed * Time.deltaTime);
-		}
+        protected virtual bool IsEnemyFound() {
+            return NearEnemies.Any();
+        }
 
-		private void MoveBackwardIfScissors() {
-			var scissors = NearEnemies.Where(u => u != null && (u.SelfPower == Power.scissors));
-			var target = Team.EnemyBasePosition;
-			if (scissors.Any())
-				target = target * -1;
+        protected virtual void EnemyFoundBehaviour() { }
 
-            transform.position = Vector2.MoveTowards(transform.position, target, CurrentSpeed * Time.deltaTime);
-		}
-
-		private void AttackScissors() {
-			var scissors = NearEnemies.Where(u => u != null && (u.SelfPower == Power.scissors));
-			var target = Team.EnemyBasePosition;
-			if (scissors.Any())
-				target = scissors.First().transform.position;
-
-            transform.position = Vector2.MoveTowards(transform.position, target, CurrentSpeed * Time.deltaTime);
-		}
-
-        private void SlowDownNearestEnemy() {
-			var enemies = NearEnemies.Where(u => u != null && (u.SelfPower != Power.tower || u.SelfPower != Power.mine));
-			if (!enemies.Any()) {
-				return;
-			}
-
-            enemies.ToList().ForEach(u => u.CurrentSpeed = 0.5f);
-		}
-
-		private void AttackEnemyBase() {
+		protected virtual void AttackEnemyBase() {
             transform.position = Vector2.MoveTowards(transform.position, Team.EnemyBasePosition, CurrentSpeed * Time.deltaTime);
 		}
 #endregion
