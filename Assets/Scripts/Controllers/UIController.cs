@@ -3,6 +3,7 @@ using UnityEngine.UI;
 using System;
 using GameCore;
 using Factory;
+using UnityEngine.SceneManagement;
 
 namespace UI {
 	public class UIController : MonoBehaviour {
@@ -28,17 +29,36 @@ namespace UI {
 		public Text _redBaseLives;
 		public Text _blueBaseLives;
 		public Text _gameOver;
+		public GameObject _confirmPanel;
+		public Button _exit;
+		public Button _yes;
+		public Button _no;
 #endregion
 
 		public static UIController Instance { get { return _instance; } }
 
 		private void Awake() {
 			_instance = this;
+
 		}
 
 		private void Start() {
 			_gameOver.text = String.Empty;
+			_confirmPanel.SetActive(false);
+			SubscribeButtons();
 			InitCosts();
+		}
+
+		private void SubscribeButtons() {
+			_exit.onClick.AddListener(OnExitButtonClick);
+			_yes.onClick.AddListener(OnYesButtonClick);
+			_no.onClick.AddListener(OnNoButtonClick);
+		}
+
+		private void UnsubscribeButtons() {
+			_exit.onClick.RemoveListener(OnExitButtonClick);
+			_yes.onClick.RemoveListener(OnYesButtonClick);
+			_no.onClick.RemoveListener(OnNoButtonClick);
 		}
 
 		private void InitCosts() {
@@ -82,6 +102,22 @@ namespace UI {
 			Color newColor = color;
 			newColor.a = alpha;
 			return newColor;
+		}
+
+		private void OnExitButtonClick() {
+			Time.timeScale = 0;
+			_confirmPanel.SetActive(true);
+		}
+
+		private void OnYesButtonClick() {
+			Time.timeScale = 1;
+			UnsubscribeButtons();
+			SceneManager.LoadScene(0);
+		}
+
+		private void OnNoButtonClick() {
+			Time.timeScale = 1;
+			_confirmPanel.SetActive(false);
 		}
 	}
 }
